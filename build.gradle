@@ -1,15 +1,37 @@
 plugins {
     id 'com.diffplug.spotless' version '6.25.0' apply false
+    id 'com.github.spotbugs' version '6.0.26' apply false
 }
 
 subprojects {
     apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'com.github.spotbugs'
 
     spotless {
         java {
             eclipse()
             trimTrailingWhitespace()
             endWithNewline()
+        }
+    }
+
+    spotbugs {
+        toolVersion = '4.9.2'
+        ignoreFailures = true
+        showStackTraces = false
+        showProgress = false
+        effort = 'default'
+        reportLevel = 'medium'
+    }
+
+    tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+        reports {
+            html {
+                required = true
+            }
+            xml {
+                required = true
+            }
         }
     }
 }
