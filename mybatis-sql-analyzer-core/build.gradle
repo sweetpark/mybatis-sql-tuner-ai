@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.jsqlparser:jsqlparser:4.8'
+    implementation 'com.github.jsqlparser:jsqlparser:5.3'
     implementation 'org.mybatis:mybatis:3.5.15'
     implementation 'org.springframework:spring-jdbc:6.1.2'
     implementation 'org.slf4j:slf4j-api:2.0.9'
