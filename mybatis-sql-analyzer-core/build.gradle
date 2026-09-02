@@ -1,0 +1,73 @@
+plugins {
+    id 'java-library'
+    id 'jacoco'
+}
+
+group = 'io.github.sweetpark'
+version = '0.1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.github.jsqlparser:jsqlparser:4.8'
+    implementation 'org.mybatis:mybatis:3.5.15'
+    implementation 'org.springframework:spring-jdbc:6.1.2'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    
+    // DB 메타데이터 및 EXPLAIN 실행을 위한 드라이버 (사용자가 런타임에 제공하거나 빌드에 포함 가능)
+    compileOnly 'com.mysql:mysql-connector-j:8.3.0'
+    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+
+    testImplementation 'com.h2database:h2:2.2.224'
+    testImplementation platform('org.junit:junit-bom:5.10.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+    jacoco {
+        includes = ['io.github.sweetpark.*']
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = true
+        html.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn test
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 1.00
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+

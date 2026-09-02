@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper namespace="com.example.mapper.SampleMapper">
+    <select id="findBadPerformancePayments" resultType="map">
+        SELECT p.*, o.user_id, m.merchant_name
+        FROM payments p
+        JOIN orders o ON p.order_id = o.order_id
+        JOIN merchants m ON o.mid = m.mid
+        LEFT JOIN refunds r ON p.payment_id = r.payment_id
+        WHERE p.amount > #{minAmount}
+        <if test="status != null">
+            AND p.status = #{status}
+        </if>
+        ORDER BY p.created_at DESC
+    </select>
+</mapper>

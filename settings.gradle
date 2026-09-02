@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'mybatis-sql-tuner-ai'
+
+include 'mybatis-sql-analyzer-core'
+include 'mybatis-sql-analyzer-intellij'

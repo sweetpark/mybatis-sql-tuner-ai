@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.TestMapper">
+    <select id="findBadPerformancePayments" resultType="map">
+        SELECT p.*, o.user_id, m.merchant_name
+        FROM payments p
+        JOIN orders o ON p.order_id = o.order_id
+        JOIN merchants m ON o.mid = m.mid
+        WHERE p.amount > #{minAmount}
+        <if test="status != null">
+            AND p.status = #{status}
+        </if>
+    </select>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="id != null and id != ''">
+                id = #{id}
+            </if>
+            <if test="now != null and now != ''">
+                create_at = #{now}
+            </if>
+            <if test="notMatch != null and notMatch != ''">
+                <![CDATA[ 1 <> 2 ]]>
+            </if>
+        </where>
+    </sql>
+</mapper>
