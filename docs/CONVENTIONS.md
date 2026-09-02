@@ -14,6 +14,9 @@
   - 예외를 무시(`catch (...) {}`)하지 않고 적절한 로그(`log.warn(...)` / `log.error(...)`)를 남기거나 명확한 도메인 예외를 던집니다.
 * **스레드 분리 (IntelliJ)**:
   - 파일 I/O 및 네트워크 통신은 반드시 `Task.Backgroundable`을 통해 백그라운드 스레드에서 실행하고, UI 갱신만 `ApplicationManager.getApplication().invokeLater(...)`로 EDT에 위임합니다.
+* **코드 포맷터 & 정적 분석 (Spotless & SpotBugs)**:
+  - Spotless 포맷팅 검증(`spotlessCheck`) 및 SpotBugs 바이트코드 정적 분석(`spotbugsMain`)이 `./gradlew check`에 연동되어 있습니다.
+  - 코드 작성 후 `./gradlew spotlessApply`를 실행하여 포맷을 자동 정렬합니다.
 
 ---
 
