@@ -107,6 +107,7 @@
 * 🏗 **[시스템 아키텍처 가이드 (docs/ARCHITECTURE.md)](docs/ARCHITECTURE.md)**: XML 파싱, AST 제거, fakeSql 생성, SSE 스트리밍 흐름
 * 📐 **[코딩 & 커밋 컨벤션 (docs/CONVENTIONS.md)](docs/CONVENTIONS.md)**: Java 코드 스타일, 단위 테스트 작성 원칙, Conventional Commits 규칙
 * 🤝 **[기여 가이드 (CONTRIBUTING.md)](CONTRIBUTING.md)**: 개발 환경 설정, 브랜치 전략, PR 제출 가이드
+* 📘 **[오픈소스 이관 플레이북 (docs/OPEN_SOURCE_MIGRATION_PLAYBOOK.md)](docs/OPEN_SOURCE_MIGRATION_PLAYBOOK.md)**: sweetpark 조직 프로젝트 공통 이관 & 품질 게이트 구축 절차서
 * 🌐 **[Marketplace 배포 가이드 (docs/MARKETPLACE_PUBLISHING.md)](docs/MARKETPLACE_PUBLISHING.md)**: JetBrains Marketplace 등록, 토큰 발급, 플러그인 서명 및 자동 배포
 * 📜 **[행동 강령 (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md)**: Contributor Covenant 2.1
 * ⚖️ **[오픈소스 라이선스 (LICENSE)](LICENSE)**: Apache License 2.0
