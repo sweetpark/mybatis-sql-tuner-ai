@@ -1,0 +1,67 @@
+name: CI & Test Enforcement
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  build-and-test:
+    name: Test & 100% Coverage Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Run Tests & JaCoCo 100% Coverage Check
+        run: ./gradlew check
+
+      - name: Build Plugin Artifact
+        run: ./gradlew :mybatis-sql-analyzer-intellij:buildPlugin
+
+      - name: Publish Test & Coverage Summary to GitHub Step Summary
+        if: always()
+        run: |
+          echo "## 📊 CI Test & Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🧪 Verification Result: ${{ job.status == 'success' && '✅ PASSED' || '❌ FAILED' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "mybatis-sql-analyzer-core/build/reports/jacoco/test/jacocoTestReport.csv" ]; then
+            echo "#### Core Module JaCoCo Coverage" >> $GITHUB_STEP_SUMMARY
+            echo "| Class | Covered Lines | Missed Lines | Coverage |" >> $GITHUB_STEP_SUMMARY
+            echo "| :--- | :---: | :---: | :---: |" >> $GITHUB_STEP_SUMMARY
+            tail -n +2 mybatis-sql-analyzer-core/build/reports/jacoco/test/jacocoTestReport.csv | awk -F',' '{
+              total = $8 + $9;
+              pct = total > 0 ? ($9 / total) * 100 : 100;
+              printf("| `%s` | %d | %d | **%.1f%%** |\n", $3, $9, $8, pct);
+            }' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            mybatis-sql-analyzer-core/build/reports/
+            mybatis-sql-analyzer-intellij/build/reports/
+          retention-days: 7
