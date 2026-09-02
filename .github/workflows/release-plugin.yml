@@ -41,7 +41,7 @@ jobs:
         run: ./gradlew :mybatis-sql-analyzer-intellij:publishPlugin
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: mybatis-sql-analyzer-intellij/build/distributions/*.zip
           generate_release_notes: true
