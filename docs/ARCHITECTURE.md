@@ -1,15 +1,16 @@
-# 🏗 MyBatis SQL Tuner AI 아키텍처 가이드
+# 🏗 MyBatis SQL Tuner AI Architecture Guide
 
-이 문서는 `mybatis-sql-tuner-ai` 프로젝트의 시스템 구조, 모듈 간 상호작용 및 데이터 흐름을 설명합니다.
+This document explains the system structure, inter-module interaction, and data flow of the
+`mybatis-sql-tuner-ai` project.
 
 ---
 
-## 1. 전체 시스템 아키텍처
+## 1. Overall System Architecture
 
 ```mermaid
 graph TD
     subgraph IntelliJPlugin["mybatis-sql-analyzer-intellij (IDE Layer)"]
-        Action["AnalyzeSqlAction<br/>(에디터 우클릭 메뉴)"] --> ToolWin["SqlAnalyzerToolWindow / Panel<br/>(Swing UI & Settings)"]
+        Action["AnalyzeSqlAction<br/>(editor right-click menu)"] --> ToolWin["SqlAnalyzerToolWindow / Panel<br/>(Swing UI & Settings)"]
         ToolWin --> Service["SqlAnalyzerService<br/>(Orchestrator)"]
         Service --> AiClient["AiChatClient<br/>(SSE Streaming Client)"]
         AiClient --> LLM["AI Model / LLM<br/>(Ollama / OpenAI API)"]
@@ -19,7 +20,7 @@ graph TD
         Service --> Extractor["SqlExtractor<br/>(XML DOM & AST Stripper)"]
         Service --> Jdbc["JdbcAnalyzer<br/>(EXPLAIN & Schema Inspector)"]
         Service --> PromptGen["PromptGenerator<br/>(DBA Persona Composer)"]
-        
+
         Extractor --> FakeSql["fakeSql<br/>(Executable SQL)"]
         FakeSql --> Jdbc
         Jdbc --> TargetDB[("Target DB<br/>(MySQL / MariaDB / PG / H2)")]
@@ -28,35 +29,35 @@ graph TD
 
 ---
 
-## 2. 모듈별 역할 및 설계 원칙
+## 2. Module Responsibilities & Design Principles
 
-### 1) `mybatis-sql-analyzer-core` (독립 정적 분석 및 파서 엔진)
-IDE에 의존하지 않는 순수 Java 라이브러리(Java 17+)로, CLI나 CI/CD 파이프라인에서도 재사용할 수 있는 핵심 모듈입니다.
+### 1) `mybatis-sql-analyzer-core` (standalone static-analysis & parser engine)
+A pure Java library (Java 17+) with no IDE dependency, so it can be reused from a CLI or a CI/CD pipeline.
 
 * **`SqlExtractor`**:
-  - MyBatis XML 파일을 DOM 파서로 읽어 지정된 `queryId`의 노드를 추출합니다.
-  - `<include refid="...">` 태그를 재귀적으로 해석하고 치환합니다.
-  - `<where>`, `<if>`, `<choose>`, `<when>`, `<otherwise>`, `<set>`, `<trim>`, `<bind>` 등 동적 태그를 제거하고 조건절을 단일 실행 가능한 `fakeSql`로 평탄화(Flattening)합니다.
+  - Reads a MyBatis XML file with a DOM parser and extracts the node for a given `queryId`.
+  - Recursively resolves and inlines `<include refid="...">` tags.
+  - Strips dynamic tags such as `<where>`, `<if>`, `<choose>`, `<when>`, `<otherwise>`, `<set>`, `<trim>`, `<bind>` and flattens the conditional branches into a single executable `fakeSql`.
 * **`JdbcAnalyzer`**:
-  - `fakeSql` 내의 바인드 변수(`#{...}`, `${...}`)를 임의의 더미 리터럴로 치환하여 실제 DB에서 문법 에러 없이 `EXPLAIN`을 수행합니다.
-  - JSqlParser를 통해 참조 테이블 목록을 추출하고, JDBC `DatabaseMetaData`를 통해 테이블 DDL, 컬럼 타입, 인덱스 정보 및 트랜잭션 격리수준을 수집합니다.
+  - Substitutes bind variables (`#{...}`, `${...}`) in `fakeSql` with dummy literals so `EXPLAIN` can run against the real DB without a syntax error.
+  - Extracts the referenced table list via JSqlParser, and collects table DDL, column types, index information, and the transaction isolation level via JDBC `DatabaseMetaData`.
 * **`PromptGenerator`**:
-  - 수집된 원본 XML 쿼리, `fakeSql`, `EXPLAIN` 실행계획, 테이블/인덱스 메타데이터를 **10년 차 수석 DBA 페르소나** 기반 최적화 프롬프트로 조합합니다.
+  - Combines the collected raw XML query, `fakeSql`, `EXPLAIN` execution plan, and table/index metadata into an optimization prompt written from the perspective of a **senior DBA persona with 10 years of experience**.
 
-### 2) `mybatis-sql-analyzer-intellij` (IDE 플러그인 레이어)
-IntelliJ IDEA 플랫폼 위에서 동작하는 UI 및 비동기 스트리밍 연동 모듈입니다.
+### 2) `mybatis-sql-analyzer-intellij` (IDE plugin layer)
+The UI and asynchronous streaming integration module that runs on the IntelliJ IDEA platform.
 
 * **`AnalyzeSqlAction`**:
-  - 매퍼 XML 에디터에서 우클릭 시 호출되며, 백그라운드 스레드(`ActionUpdateThread.BGT`)에서 XML 유효성을 사전 검증합니다.
+  - Invoked from a right-click in the mapper XML editor; pre-validates the XML on a background thread (`ActionUpdateThread.BGT`).
 * **`SqlAnalyzerPanel` / `SqlAnalyzerToolWindow`**:
-  - 에디터 우측 툴윈도우에 고정되며, 매퍼 디렉토리 탐색, 파일 필터링, `queryId` 선택 UI를 제공합니다.
-  - DB 접속 정보 및 AI 엔드포인트 설정은 IntelliJ의 `PropertiesComponent`를 통해 프로젝트 단위로 안전하게 유지됩니다.
+  - Docked as a tool window on the right of the editor; provides mapper-directory browsing, file filtering, and `queryId` selection UI.
+  - DB connection info and the AI endpoint settings are kept safely per IntelliJ project — non-secret values via `PropertiesComponent`, and the DB password / AI API key via the OS credential store (`PasswordSafe`).
 * **`AiChatClient`**:
-  - Java 11 표준 `HttpClient`와 `BodyHandlers.ofLines()`를 활용하여 `POST /v1/chat/completions`의 Server-Sent Events (SSE) 청크(`data: {...}`)를 토큰 단위로 실시간 파싱하고 EDT 스레드로 전달합니다.
+  - Uses the Java 11 standard `HttpClient` with `BodyHandlers.ofLines()` to parse Server-Sent Events (SSE) chunks (`data: {...}`) from `POST /v1/chat/completions` token by token in real time, and dispatches them to the EDT.
 
 ---
 
-## 3. 실행 및 데이터 분석 파이프라인
+## 3. Execution & Data Analysis Pipeline
 
 ```mermaid
 sequenceDiagram
@@ -68,16 +69,16 @@ sequenceDiagram
     participant DB as Target DB
     participant AI as AiChatClient (LLM)
 
-    Dev->>UI: 'AI 분석 실행' 클릭
+    Dev->>UI: Click 'Run AI Analysis'
     UI->>Svc: analyze(queryId, mapperPath, dbConfig)
     Svc->>Ext: getQueryIdDetail() & buildFakeSql()
-    Ext-->>Svc: XML 원본 & fakeSql 반환
-    Svc->>DB: EXPLAIN & Metadata 조회
-    DB-->>Svc: 실행계획 & 인덱스 메타데이터
-    Svc->>UI: 완성된 DBA 프롬프트 생성
+    Ext-->>Svc: Return raw XML & fakeSql
+    Svc->>DB: Query EXPLAIN & metadata
+    DB-->>Svc: Execution plan & index metadata
+    Svc->>UI: Compose the final DBA prompt
     UI->>AI: streamChat(prompt, listener)
     loop SSE Streaming
-        AI-->>UI: Token Chunk (Delta) 수신 및 화면 append
+        AI-->>UI: Receive token chunk (delta) and append to the view
     end
-    AI-->>UI: [DONE] 완료 알림
+    AI-->>UI: [DONE] completion notice
 ```

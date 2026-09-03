@@ -1,39 +1,39 @@
-# 📘 오픈소스 이관 및 표준화 플레이북 (Open Source Migration Playbook)
+# 📘 Open Source Migration Playbook
 
-> **대상 프로젝트**: `mybatis-sql-tuner-ai`, `mini-apm-spring-boot-starter`, `ha-excel-job-engine` 등 `sweetpark` 조직 내 모든 오픈소스 저장소  
-> **목적**: 사내/기존 저장소의 소스코드를 안전하게 이관하고, 최상위 품질 게이트(100% 커버리지, Spotless, SpotBugs, CI, CodeRabbit)와 표준 문서를 갖춘 공개 오픈소스로 표준화하기 위한 표준 절차서입니다.
+> **Target projects**: `mybatis-sql-tuner-ai`, `mini-apm-spring-boot-starter`, `ha-excel-job-engine`, and every other open-source repository under the `sweetpark` organization.
+> **Purpose**: A standard procedure for safely migrating source code out of internal/legacy repositories and standardizing it into a public open-source project with top-tier quality gates (100% coverage, Spotless, SpotBugs, CI, CodeRabbit) and standard documentation.
 
 ---
 
-## 📋 표준 이관 체크리스트 (6단계 프로세스)
+## 📋 Standard Migration Checklist (6-Step Process)
 
 ```mermaid
 flowchart TD
-    S1["1단계: 소스 이관 & 클렌징 (Sanitization)"] --> S2["2단계: 100% 커버리지 & JaCoCo 강제화"]
-    S2 --> S3["3단계: Spotless 포맷터 & SpotBugs 정적 분석"]
-    S3 --> S4["4단계: 오픈소스 표준 6종 문서 구축"]
-    S4 --> S5["5단계: GitHub Actions CI/CD & PR 템플릿"]
-    S5 --> S6["6단계: GitHub 저장소 설정 & CodeRabbit 연동"]
+    S1["Step 1: Source migration & sanitization"] --> S2["Step 2: Enforce 100% coverage & JaCoCo"]
+    S2 --> S3["Step 3: Spotless formatter & SpotBugs static analysis"]
+    S3 --> S4["Step 4: Build the 6 standard open-source docs"]
+    S4 --> S5["Step 5: GitHub Actions CI/CD & PR template"]
+    S5 --> S6["Step 6: GitHub repository settings & CodeRabbit integration"]
 ```
 
 ---
 
-## 🛠 1단계: 소스코드 이관 및 클렌징 (Sanitization)
+## 🛠 Step 1: Migrate & Sanitize the Source Code
 
-1. **패키지 경로 일원화**:
-   - 사내 패키지(`com.company.*` 등)를 공식 오픈소스 패키지명으로 변경:
-     - 예: `io.github.sweetpark.miniapm`, `io.github.sweetpark.haexcel`
-2. **기밀 및 사내 전용 정보 완전 제거**:
-   - 사내 고정 IP(예: `13.124.xxx.xxx`), 사내 전용 URL/도메인, 테스트용 내부 계정 정보 검색(`grep`) 및 제거
-   - 설정값은 `application.yml`의 기본값(`localhost`)과 Spring `@ConfigurationProperties` 또는 환경변수로 오버라이드 가능하도록 구조화
-3. **Lombok 의존성 최소화 / SLF4J 로거 표준화**:
-   - JDK 17~25+ 전 버전 호환성을 위해 로거를 `LoggerFactory.getLogger(ClassName.class)`로 표준화
+1. **Unify package paths**:
+   - Rename internal packages (e.g., `com.company.*`) to the official open-source package name:
+     - Example: `io.github.sweetpark.miniapm`, `io.github.sweetpark.haexcel`
+2. **Fully remove confidential and internal-only information**:
+   - Search (`grep`) for and remove internal fixed IPs (e.g., `13.124.xxx.xxx`), internal-only URLs/domains, and internal test account credentials.
+   - Structure configuration values so they default to `localhost` in `application.yml` and can be overridden via Spring `@ConfigurationProperties` or environment variables.
+3. **Minimize the Lombok dependency / standardize on the SLF4J logger**:
+   - Standardize logging on `LoggerFactory.getLogger(ClassName.class)` for compatibility across JDK 17~25+.
 
 ---
 
-## 🧪 2단계: 단위 테스트 및 100% 라인 커버리지 강제화
+## 🧪 Step 2: Enforce Unit Tests & 100% Line Coverage
 
-1. **JaCoCo 플러그인 설정 (`build.gradle`)**:
+1. **Configure the JaCoCo plugin (`build.gradle`)**:
    ```groovy
    plugins {
        id 'jacoco'
@@ -51,21 +51,21 @@ flowchart TD
                limit {
                    counter = 'LINE'
                    value = 'COVEREDRATIO'
-                   minimum = 1.00 // 100% 라인 커버리지 강제
+                   minimum = 1.00 // enforce 100% line coverage
                }
            }
        }
    }
    check.dependsOn jacocoTestCoverageVerification
    ```
-2. **Native Dynamic Proxy 기반 테스트 작성**:
-   - 바이트코드 조작 기반 Mock 라이브러리가 최신 JDK에서 깨지는 현상을 방지하기 위해 Java 표준 `Proxy.newProxyInstance(...)`로 인터페이스 Mocking.
+2. **Write tests based on native Dynamic Proxy**:
+   - Mock interfaces with the standard Java `Proxy.newProxyInstance(...)` to avoid bytecode-manipulation-based mocking libraries breaking on recent JDKs.
 
 ---
 
-## 🎨 3단계: Spotless 코드 포맷터 & SpotBugs 정적 분석
+## 🎨 Step 3: Spotless Code Formatter & SpotBugs Static Analysis
 
-1. **Root `build.gradle` 설정**:
+1. **Root `build.gradle` configuration**:
    ```groovy
    plugins {
        id 'com.diffplug.spotless' version '6.25.0' apply false
@@ -99,53 +99,56 @@ flowchart TD
        }
    }
    ```
-2. **포맷팅 실행 명령어**:
+   > For a repository that wants SpotBugs to actually gate the build, set `ignoreFailures = false`
+   > and add an `excludeFilter` pointing at a narrowly-scoped exclude XML for confirmed false
+   > positives — see how `mybatis-sql-tuner-ai` itself is configured for a worked example.
+2. **Formatting command**:
    ```bash
    ./gradlew spotlessApply
    ```
 
 ---
 
-## 📚 4단계: 오픈소스 표준 6종 문서 구축
+## 📚 Step 4: Build the 6 Standard Open Source Docs
 
-프로젝트 루트 및 `docs/` 폴더에 아래 6개 표준 문서를 작성합니다:
+Create the following 6 standard documents in the project root and the `docs/` folder:
 
-| 번호 | 문서명 | 경로 | 필수 포함 내용 |
+| # | Document | Path | Must include |
 | :---: | :--- | :--- | :--- |
-| 1 | **LICENSE** | `/LICENSE` | Apache License 2.0 전문 |
-| 2 | **CODE_OF_CONDUCT.md** | `/CODE_OF_CONDUCT.md` | Contributor Covenant 2.1 행동 강령 |
-| 3 | **CONTRIBUTING.md** | `/CONTRIBUTING.md` | Fork, 브랜치 전략, PR 절차, 100% 커버리지 빌드 규칙 |
-| 4 | **ARCHITECTURE.md** | `/docs/ARCHITECTURE.md` | Mermaid 다이어그램 기반 모듈/데이터 흐름 설계도 |
-| 5 | **CONVENTIONS.md** | `/docs/CONVENTIONS.md` | Java 코딩 스타일, Conventional Commits 규격 |
-| 6 | **README.md** | `/README.md` | 공식 뱃지 7종, 기능 소개, 호환성 매트릭스, 빌드/실행 가이드 |
+| 1 | **LICENSE** | `/LICENSE` | Full Apache License 2.0 text |
+| 2 | **CODE_OF_CONDUCT.md** | `/CODE_OF_CONDUCT.md` | Contributor Covenant 2.1 code of conduct |
+| 3 | **CONTRIBUTING.md** | `/CONTRIBUTING.md` | Fork/branch strategy, PR process, 100% coverage build rule |
+| 4 | **ARCHITECTURE.md** | `/docs/ARCHITECTURE.md` | Module/data-flow design based on Mermaid diagrams |
+| 5 | **CONVENTIONS.md** | `/docs/CONVENTIONS.md` | Java coding style, Conventional Commits spec |
+| 6 | **README.md** | `/README.md` | The 7 official badges, feature overview, compatibility matrix, build/run guide |
 
 ---
 
-## 🤖 5단계: GitHub Actions CI/CD & PR 템플릿
+## 🤖 Step 5: GitHub Actions CI/CD & PR Template
 
-1. **CI 워크플로우 (`.github/workflows/ci.yml`)**:
+1. **CI workflow (`.github/workflows/ci.yml`)**:
    - `on: [push, pull_request]`
-   - JDK 17 설정 및 `./gradlew check` 실행
-   - `$GITHUB_STEP_SUMMARY`에 JaCoCo 커버리지 마크다운 표 자동 발행
-2. **배포 워크플로우 (`.github/workflows/release.yml`)**:
+   - Set up JDK 17 and run `./gradlew check`
+   - Auto-publish a JaCoCo coverage markdown table to `$GITHUB_STEP_SUMMARY`
+2. **Release workflow (`.github/workflows/release.yml`)**:
    - `on: push: tags: ['v*']`
-   - Maven Central 배포 또는 GitHub Release 생성
-3. **PR 템플릿 (`.github/PULL_REQUEST_TEMPLATE.md`)**:
-   - 작업 개요, 변경 내역, 테스트/100% 커버리지 체크리스트
+   - Publish to Maven Central or create a GitHub Release
+3. **PR template (`.github/PULL_REQUEST_TEMPLATE.md`)**:
+   - Summary, changes, and a test/100%-coverage checklist
 
 ---
 
-## ⚙️ 6단계: GitHub 저장소 설정 & CodeRabbit 연동
+## ⚙️ Step 6: GitHub Repository Settings & CodeRabbit Integration
 
-1. **저장소 Visibility 변경**:
-   - GitHub 저장소 `Settings` → 맨 아래 Danger Zone → **`Make public`**
-2. **PR 머지 시 브랜치 자동 삭제 (Head Branch Auto-delete)**:
-   - `Settings` → `General` → `Pull Requests` 섹션 → ✅ **`Automatically delete head branches`** 체크
-3. **`main` 브랜치 보호 룰 (Branch Protection Rule)**:
+1. **Change repository visibility**:
+   - Repository `Settings` → Danger Zone at the bottom → **`Make public`**
+2. **Auto-delete head branches on merge**:
+   - `Settings` → `General` → `Pull Requests` section → check ✅ **`Automatically delete head branches`**
+3. **`main` branch protection rule**:
    - `Settings` → `Branches` → `Add branch protection rule` (Branch: `main`)
    - ✅ `Require a pull request before merging` (Require approvals: 1)
    - ✅ `Require status checks to pass before merging` (Status check: `Test & 100% Coverage Verification`)
    - ✅ `Require conversation resolution before merging`
-4. **CodeRabbit AI 연동**:
-   - [CodeRabbit.ai](https://coderabbit.ai/)에서 저장소 추가 후 설치
-   - Review Profile: `Chill` 선택
+4. **CodeRabbit AI integration**:
+   - Add and install the repository at [CodeRabbit.ai](https://coderabbit.ai/)
+   - Select the `Chill` review profile

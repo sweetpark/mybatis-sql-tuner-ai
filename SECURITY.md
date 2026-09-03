@@ -1,34 +1,35 @@
-# 🔒 보안 정책 (Security Policy)
+# 🔒 Security Policy
 
-`mybatis-sql-tuner-ai` 프로젝트는 사용자의 데이터 보안과 코드 신뢰성을 최우선으로 생각합니다.
+The `mybatis-sql-tuner-ai` project treats user data security and code trustworthiness as top priorities.
 
 ---
 
-## 📌 지원 버전 (Supported Versions)
+## 📌 Supported Versions
 
-현재 보안 업데이트가 제공되는 버전 목록입니다.
+Versions currently receiving security updates:
 
-| 버전 | 보안 패치 지원 여부 |
+| Version | Supported |
 | :--- | :--- |
-| `0.1.x` | ✅ 지원 중 |
-| `< 0.1.0` | ❌ 지원 안 함 |
+| `0.1.x` | ✅ Supported |
+| `< 0.1.0` | ❌ Not supported |
 
 ---
 
-## 🚨 취약점 제보 방법 (Reporting a Vulnerability)
+## 🚨 Reporting a Vulnerability
 
-본 프로젝트에서 보안 취약점이나 기밀 정보 유출 가능성을 발견하셨다면, **공개 Issue에 등록하지 마시고 아래 방법으로 비공개 제보**해 주시기 바랍니다:
+If you discover a security vulnerability or a potential leak of sensitive information in this project,
+**please do not open a public issue** — report it privately using one of the methods below:
 
-1. **GitHub Security Advisory (권장)**:
-   - 저장소의 **[Security]** 탭 ➔ **[Advisories]** ➔ **[Report a vulnerability]** 를 통해 비공개 제보를 생성합니다.
-2. **이메일 제보**:
-   - 메인테이너 이메일: `sweetpark` (GitHub 프로필 참조)
+1. **GitHub Security Advisory (recommended)**:
+   - Open a private report via the repository's **[Security]** tab → **[Advisories]** → **[Report a vulnerability]**.
+2. **Email**:
+   - Maintainer email: `sweetpark` (see the GitHub profile)
 
-### 📋 제보 시 포함해 주실 내용
-- 취약점 유형 및 영향 범위 (예: SQL Injection, API Key 노출 등)
-- 취약점을 재현할 수 있는 상세 단계 또는 PoC 코드
-- 해결을 위한 제안이나 패치 방안 (선택 사항)
+### 📋 What to include in your report
+- The type and scope of the vulnerability (e.g., SQL injection, API key exposure, etc.)
+- Detailed reproduction steps or PoC code
+- A suggested fix or patch approach (optional)
 
-### ⏱ 대응 절차
-- 제보 접수 후 **48시간 이내**에 확인 메일 및 초기 영향도 분석 결과를 회신합니다.
-- 패치 개발 및 검증 후 신속하게 보안 릴리스를 발행하며, 제보자의 공헌을 릴리스 노트에 기재합니다.
+### ⏱ Response process
+- We will acknowledge your report and share an initial impact assessment **within 48 hours**.
+- After the fix is developed and verified, we will publish a security release promptly and credit the reporter in the release notes.
