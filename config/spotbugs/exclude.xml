@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs 오탐/의도된 설계 제외 목록.
+
+  ignoreFailures=false로 실제 빌드 게이트로 사용하기 위해, 프로덕션 결함이 아니라고 확인된
+  항목만 정확한 클래스/메서드 범위로 좁혀서 제외한다. 새로운 클래스나 패턴을 통째로 무시하지
+  않는다 — 그러면 이 필터가 다시 ignoreFailures=true와 같아진다.
+-->
+<FindBugsFilter>
+
+    <!--
+      의도된 예외 삼킴: <include> 태그가 참조하는 <sql> 스니펫이 깨진 XML이어도 전체 분석을
+      중단하지 않고 "/* ERROR_PARSING_INCLUDE */" 주석으로 대체한 뒤 계속 진행하는 그레이스풀
+      폴백 설계다.
+    -->
+    <Match>
+        <Class name="io.github.sweetpark.sqlanalyzer.core.SqlExtractor"/>
+        <Method name="buildFakeSql"/>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+
+    <!--
+      테스트 픽스처: H2 인메모리 테스트 DB(jdbc:h2:mem:...)는 인증이 필요 없어 의도적으로 빈
+      비밀번호를 사용한다. 프로덕션 코드가 아니다.
+    -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="DMI_EMPTY_DB_PASSWORD"/>
+    </Match>
+
+    <!--
+      TestActionManager는 IntelliJ ActionManager(추상 클래스)를 흉내 내는 테스트 더블이다.
+      실제 구현은 @NotNull을 반환해야 하지만, 테스트가 사용하지 않는 메서드는 null을 반환해도
+      무해하다 (해당 호출 경로가 테스트에 존재하지 않음).
+    -->
+    <Match>
+        <Class name="io.github.sweetpark.sqlanalyzer.intellij.action.TestActionManager"/>
+        <Bug pattern="NP_NONNULL_RETURN_VIOLATION"/>
+    </Match>
+
+</FindBugsFilter>

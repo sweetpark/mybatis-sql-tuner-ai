@@ -110,8 +110,9 @@ public class SqlAnalyzerPanel extends JPanel {
 	public void setMapperFile(String mapperFilePath) {
 		Path mapperPath = Path.of(mapperFilePath);
 		Path parentDir = mapperPath.getParent();
+		Path fileName = mapperPath.getFileName();
 
-		if (parentDir == null) {
+		if (parentDir == null || fileName == null) {
 			return;
 		}
 
@@ -119,7 +120,7 @@ public class SqlAnalyzerPanel extends JPanel {
 		reloadMapperFiles();
 
 		// 파일명으로 Mapper File 콤보에서 선택 (상대 경로가 "." 기준이므로 파일명만 일치)
-		mapperFileCombo.setSelectedItem(mapperPath.getFileName().toString());
+		mapperFileCombo.setSelectedItem(fileName.toString());
 		reloadQueryIds();
 	}
 

@@ -55,7 +55,7 @@ public class TestPropertiesComponent extends PropertiesComponent {
 	}
 
 	@Override
-	public @Nullable String getValue(String name, @NotNull String defaultValue) {
+	public @NotNull String getValue(String name, @NotNull String defaultValue) {
 		return map.getOrDefault(name, defaultValue);
 	}
 

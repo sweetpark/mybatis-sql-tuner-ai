@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JdbcAnalyzerTest {
 
 	private Connection connection;
-	private final String queryId = "findBadPerformancePayments";
+	private static final String queryId = "findBadPerformancePayments";
 	private final Path mapperPath = Path.of("src/test/resources/mapper/TestMapper.xml");
 	private final Path mapperPathDir = Path.of("src/test/resources/mapper");
 

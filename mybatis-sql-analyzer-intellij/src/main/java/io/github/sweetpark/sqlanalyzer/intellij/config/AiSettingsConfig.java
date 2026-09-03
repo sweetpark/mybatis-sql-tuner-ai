@@ -1,8 +1,8 @@
 package io.github.sweetpark.sqlanalyzer.intellij.config;
 
 /**
- * AI(Ollama / OpenAI 호환) 연결 정보를 담는 값 객체. 저장/로드는 AiSettingsDialog가 IntelliJ
- * PropertiesComponent를 통해 담당한다.
+ * AI(Ollama / OpenAI 호환) 연결 정보를 담는 값 객체. 저장/로드는 AiSettingsDialog가 담당한다 (Base
+ * URL/Model은 PropertiesComponent, API Key는 {@link SecretStore}를 통해).
  */
 public class AiSettingsConfig {
 

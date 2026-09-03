@@ -1,6 +1,7 @@
 package io.github.sweetpark.sqlanalyzer.intellij.toolwindow;
 
 import io.github.sweetpark.sqlanalyzer.intellij.config.AiSettingsConfig;
+import io.github.sweetpark.sqlanalyzer.intellij.config.SecretStore;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -10,10 +11,12 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * AI(Ollama / OpenAI 호환) 연결 설정을 입력받아 PropertiesComponent(프로젝트 단위)에 저장하는 다이얼로그.
+ * AI(Ollama / OpenAI 호환) 연결 설정을 입력받아 저장하는 다이얼로그.
  *
  * <p>
- * DbSettingsDialog와 동일한 패턴을 따른다. 설정값은 IDE 재시작 후에도 유지된다.
+ * Base URL/Model은 PropertiesComponent(프로젝트 단위)에, API Key는 OS 자격 증명 저장소를 사용하는
+ * {@link io.github.sweetpark.sqlanalyzer.intellij.config.SecretStore}(PasswordSafe)에
+ * 저장한다. DbSettingsDialog와 동일한 패턴을 따른다. 설정값은 IDE 재시작 후에도 유지된다.
  */
 public class AiSettingsDialog extends DialogWrapper {
 
@@ -79,7 +82,7 @@ public class AiSettingsDialog extends DialogWrapper {
 		gbc.weightx = 0;
 		panel.add(new JLabel("API Key:"), gbc);
 
-		apiKeyField = new JPasswordField(props.getValue(KEY_API_KEY, DEFAULT_API_KEY), 38);
+		apiKeyField = new JPasswordField(loadApiKey(project), 38);
 		apiKeyField.setToolTipText("Ollama 등 미인증 환경은 공백 가능. OpenAI 등은 API 키 입력.");
 		gbc.gridx = 1;
 		gbc.weightx = 1.0;
@@ -96,13 +99,16 @@ public class AiSettingsDialog extends DialogWrapper {
 		return panel;
 	}
 
-	/** OK(저장) 버튼 클릭 시 PropertiesComponent에 저장 */
+	/**
+	 * OK(저장) 버튼 클릭 시 저장: Base URL/Model은 PropertiesComponent, API Key는
+	 * SecretStore(PasswordSafe)
+	 */
 	@Override
 	protected void doOKAction() {
 		PropertiesComponent props = PropertiesComponent.getInstance(project);
 		props.setValue(KEY_BASE_URL, baseUrlField.getText().trim());
 		props.setValue(KEY_MODEL, modelField.getText().trim());
-		props.setValue(KEY_API_KEY, new String(apiKeyField.getPassword()).trim());
+		SecretStore.getInstance(project).setSecret(KEY_API_KEY, new String(apiKeyField.getPassword()).trim());
 		super.doOKAction();
 	}
 
@@ -112,6 +118,30 @@ public class AiSettingsDialog extends DialogWrapper {
 	public static AiSettingsConfig loadConfig(Project project) {
 		PropertiesComponent props = PropertiesComponent.getInstance(project);
 		return new AiSettingsConfig(props.getValue(KEY_BASE_URL, DEFAULT_BASE_URL),
-				props.getValue(KEY_MODEL, DEFAULT_MODEL), props.getValue(KEY_API_KEY, DEFAULT_API_KEY));
+				props.getValue(KEY_MODEL, DEFAULT_MODEL), loadApiKey(project));
+	}
+
+	/**
+	 * API Key를 SecretStore(PasswordSafe)에서 로드한다.
+	 *
+	 * <p>
+	 * 과거 버전은 API Key를 PropertiesComponent에 평문으로 저장했다. SecretStore에 값이 없고 레거시 평문 값이
+	 * 남아있으면 1회 마이그레이션 후 평문 값을 삭제한다.
+	 */
+	private static String loadApiKey(Project project) {
+		SecretStore secretStore = SecretStore.getInstance(project);
+		String apiKey = secretStore.getSecret(KEY_API_KEY);
+
+		if (apiKey.isEmpty()) {
+			PropertiesComponent props = PropertiesComponent.getInstance(project);
+			String legacyApiKey = props.getValue(KEY_API_KEY, "");
+			if (!legacyApiKey.isEmpty()) {
+				secretStore.setSecret(KEY_API_KEY, legacyApiKey);
+				props.unsetValue(KEY_API_KEY);
+				return legacyApiKey;
+			}
+		}
+
+		return apiKey.isEmpty() ? DEFAULT_API_KEY : apiKey;
 	}
 }

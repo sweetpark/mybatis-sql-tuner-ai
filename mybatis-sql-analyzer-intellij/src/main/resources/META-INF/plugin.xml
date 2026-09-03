@@ -17,6 +17,10 @@
         <toolWindow id="MyBatis SQL Analyzer"
                     anchor="right"
                     factoryClass="io.github.sweetpark.sqlanalyzer.intellij.toolwindow.SqlAnalyzerToolWindow"/>
+
+        <!-- DB 비밀번호, AI API Key 저장용 프로젝트 서비스: PasswordSafe(OS 자격 증명 저장소) 기반 -->
+        <projectService serviceInterface="io.github.sweetpark.sqlanalyzer.intellij.config.SecretStore"
+                         serviceImplementation="io.github.sweetpark.sqlanalyzer.intellij.config.PasswordSafeSecretStore"/>
     </extensions>
 
     <actions>

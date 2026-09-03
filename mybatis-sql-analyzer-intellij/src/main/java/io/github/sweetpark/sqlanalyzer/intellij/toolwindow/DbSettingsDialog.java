@@ -1,5 +1,6 @@
 package io.github.sweetpark.sqlanalyzer.intellij.toolwindow;
 
+import io.github.sweetpark.sqlanalyzer.intellij.config.SecretStore;
 import io.github.sweetpark.sqlanalyzer.intellij.config.SqlAnalyzerConfig;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
@@ -10,7 +11,12 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * DB 연결 설정을 입력받아 IntelliJ PropertiesComponent(프로젝트 단위)에 저장하는 다이얼로그.
+ * DB 연결 설정을 입력받아 저장하는 다이얼로그.
+ *
+ * <p>
+ * URL/User는 IntelliJ PropertiesComponent(프로젝트 단위)에, 비밀번호는 OS 자격 증명 저장소를 사용하는
+ * {@link io.github.sweetpark.sqlanalyzer.intellij.config.SecretStore}(PasswordSafe)에
+ * 저장한다.
  *
  * <p>
  * 설정값은 IDE 재시작 후에도 유지되며, .gitignore에 파일을 추가할 필요가 없다.
@@ -81,7 +87,7 @@ public class DbSettingsDialog extends DialogWrapper {
 		gbc.weightx = 0;
 		panel.add(new JLabel("Password:"), gbc);
 
-		passwordField = new JPasswordField(props.getValue(KEY_JDBC_PASSWORD, ""), 38);
+		passwordField = new JPasswordField(loadPassword(project), 38);
 		gbc.gridx = 1;
 		gbc.weightx = 1.0;
 		panel.add(passwordField, gbc);
@@ -97,13 +103,16 @@ public class DbSettingsDialog extends DialogWrapper {
 		return panel;
 	}
 
-	/** OK(저장) 버튼 클릭 시 PropertiesComponent에 저장 */
+	/**
+	 * OK(저장) 버튼 클릭 시 저장: URL/User는 PropertiesComponent, 비밀번호는
+	 * SecretStore(PasswordSafe)
+	 */
 	@Override
 	protected void doOKAction() {
 		PropertiesComponent props = PropertiesComponent.getInstance(project);
 		props.setValue(KEY_JDBC_URL, urlField.getText().trim());
 		props.setValue(KEY_JDBC_USER, userField.getText().trim());
-		props.setValue(KEY_JDBC_PASSWORD, new String(passwordField.getPassword()));
+		SecretStore.getInstance(project).setSecret(KEY_JDBC_PASSWORD, new String(passwordField.getPassword()));
 		super.doOKAction();
 	}
 
@@ -114,6 +123,30 @@ public class DbSettingsDialog extends DialogWrapper {
 	public static SqlAnalyzerConfig loadConfig(Project project) {
 		PropertiesComponent props = PropertiesComponent.getInstance(project);
 		return new SqlAnalyzerConfig(props.getValue(KEY_JDBC_URL, ""), props.getValue(KEY_JDBC_USER, ""),
-				props.getValue(KEY_JDBC_PASSWORD, ""));
+				loadPassword(project));
+	}
+
+	/**
+	 * 비밀번호를 SecretStore(PasswordSafe)에서 로드한다.
+	 *
+	 * <p>
+	 * 과거 버전은 비밀번호를 PropertiesComponent에 평문으로 저장했다. SecretStore에 값이 없고 레거시 평문 값이
+	 * 남아있으면 1회 마이그레이션 후 평문 값을 삭제한다.
+	 */
+	private static String loadPassword(Project project) {
+		SecretStore secretStore = SecretStore.getInstance(project);
+		String password = secretStore.getSecret(KEY_JDBC_PASSWORD);
+
+		if (password.isEmpty()) {
+			PropertiesComponent props = PropertiesComponent.getInstance(project);
+			String legacyPassword = props.getValue(KEY_JDBC_PASSWORD, "");
+			if (!legacyPassword.isEmpty()) {
+				secretStore.setSecret(KEY_JDBC_PASSWORD, legacyPassword);
+				props.unsetValue(KEY_JDBC_PASSWORD);
+				return legacyPassword;
+			}
+		}
+
+		return password;
 	}
 }

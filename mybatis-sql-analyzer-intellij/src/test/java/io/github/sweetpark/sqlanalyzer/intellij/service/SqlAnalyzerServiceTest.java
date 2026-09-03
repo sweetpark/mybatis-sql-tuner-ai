@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SqlAnalyzerServiceTest {
 
 	private Connection connection;
-	private final String queryId = "findBadPerformancePayments";
+	private static final String queryId = "findBadPerformancePayments";
 	private final Path mapperPath = Path.of("../mybatis-sql-analyzer-core/src/test/resources/mapper/TestMapper.xml");
 	private final Path mapperPathDir = Path.of("../mybatis-sql-analyzer-core/src/test/resources/mapper");
 

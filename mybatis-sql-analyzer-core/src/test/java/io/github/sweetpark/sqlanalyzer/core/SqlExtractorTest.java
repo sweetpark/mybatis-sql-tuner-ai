@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class SqlExtractorTest {
 
 	private Connection connection;
-	private final String queryId = "findBadPerformancePayments";
-	private final String mapperPath = "src/test/resources/mapper/TestMapper.xml";
+	private static final String queryId = "findBadPerformancePayments";
+	private static final String mapperPath = "src/test/resources/mapper/TestMapper.xml";
 	private final Path mapperBaseDir = Path.of("src/test/resources/mapper");
 
 	@BeforeEach
@@ -157,7 +157,8 @@ class SqlExtractorTest {
 				</select>
 				""";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		Document customDoc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(customXml.getBytes()));
+		Document customDoc = dbf.newDocumentBuilder()
+				.parse(new ByteArrayInputStream(customXml.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 		Map<String, String> customRegistry = new HashMap<>(sqlSnippetRegistry);
 		customRegistry.put("io.github.sweetpark.sqlanalyzer.core.mapper.FullFeaturesMapper.corruptedSnippet",
 				"NOT_VALID_XML <<<");

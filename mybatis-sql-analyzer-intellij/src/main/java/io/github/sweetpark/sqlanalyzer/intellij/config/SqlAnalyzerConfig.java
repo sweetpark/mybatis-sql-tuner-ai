@@ -1,8 +1,8 @@
 package io.github.sweetpark.sqlanalyzer.intellij.config;
 
 /**
- * DB 연결 정보를 담는 값 객체. 저장/로드는 DbSettingsDialog가 IntelliJ PropertiesComponent를 통해
- * 담당한다.
+ * DB 연결 정보를 담는 값 객체. 저장/로드는 DbSettingsDialog가 담당한다 (URL/User는
+ * PropertiesComponent, 비밀번호는 {@link SecretStore}를 통해).
  */
 public class SqlAnalyzerConfig {
 

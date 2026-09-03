@@ -32,11 +32,14 @@ subprojects {
 
     spotbugs {
         toolVersion = '4.9.2'
-        ignoreFailures = true
+        // 확인된 오탐/의도된 설계만 config/spotbugs/exclude.xml로 좁혀서 제외하고,
+        // 나머지는 실제 빌드 게이트로 동작하도록 실패를 허용하지 않는다.
+        ignoreFailures = false
         showStackTraces = false
         showProgress = false
         effort = 'default'
         reportLevel = 'medium'
+        excludeFilter = rootProject.file('config/spotbugs/exclude.xml')
     }
 
     tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
