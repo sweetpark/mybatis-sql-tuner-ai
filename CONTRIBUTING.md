@@ -54,25 +54,25 @@ All contributors must follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) to keep th
 ### 2) Run the sandbox IDE (verify the plugin locally)
 ```bash
 # Launch an IntelliJ IDEA sandbox with the plugin installed
-./gradlew :mybatis-sql-analyzer-intellij:runIde
+./gradlew :mybatis-sql-tuner-intellij:runIde
 ```
 
 ### 3) Build the distributable plugin zip
 ```bash
-./gradlew :mybatis-sql-analyzer-intellij:buildPlugin
+./gradlew :mybatis-sql-tuner-intellij:buildPlugin
 ```
 
 ---
 
 ## 4. Quality & Coverage Rules (100% Line Coverage Enforcement)
 
-`mybatis-sql-analyzer-core`, the project's core parser/analyzer module, enforces **100% line coverage**
+`mybatis-sql-tuner-core`, the project's core parser/analyzer module, enforces **100% line coverage**
 as a build gate (`jacocoTestCoverageVerification`).
 
 * Any new logic or bug fix must be accompanied by unit tests covering the relevant branches.
 * Verify core module coverage with:
   ```bash
-  ./gradlew :mybatis-sql-analyzer-core:check
+  ./gradlew :mybatis-sql-tuner-core:check
   ```
 
 ---

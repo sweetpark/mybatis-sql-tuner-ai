@@ -1,6 +1,6 @@
 # 🚀 JetBrains Marketplace Registration & Automated Publishing Guide
 
-This document walks through registering the `MyBatis SQL Analyzer` IntelliJ plugin on the official
+This document walks through registering the `MyBatis SQL Tuner AI` IntelliJ plugin on the official
 **JetBrains Marketplace** and setting up an automated publishing pipeline.
 
 ---
@@ -112,7 +112,7 @@ jobs:
           CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew :mybatis-sql-analyzer-intellij:publishPlugin
+        run: ./gradlew :mybatis-sql-tuner-intellij:publishPlugin
 ```
 
 ---
@@ -122,7 +122,7 @@ jobs:
 To upload directly to the Marketplace from your local machine, run:
 
 ```bash
-./gradlew :mybatis-sql-analyzer-intellij:publishPlugin
+./gradlew :mybatis-sql-tuner-intellij:publishPlugin
 ```
 
 ---
@@ -135,4 +135,4 @@ To upload directly to the Marketplace from your local machine, run:
 2. **Version updates**:
    - After initial approval, subsequent version updates go live within minutes to a few hours once they pass automated verification (Plugin Verifier).
 3. **User installation**:
-   - Once approved, developers worldwide can find and install **"MyBatis SQL Analyzer"** with a single click from `Settings > Plugins > Marketplace` in IntelliJ IDEA.
+   - Once approved, developers worldwide can find and install **"MyBatis SQL Tuner AI"** with a single click from `Settings > Plugins > Marketplace` in IntelliJ IDEA.

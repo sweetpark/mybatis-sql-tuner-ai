@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew check
 
       - name: Build Plugin Artifact
-        run: ./gradlew :mybatis-sql-analyzer-intellij:buildPlugin
+        run: ./gradlew :mybatis-sql-tuner-intellij:buildPlugin
 
       - name: Publish Test & Coverage Summary to GitHub Step Summary
         if: always()
@@ -45,11 +45,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🧪 Verification Result: ${{ job.status == 'success' && '✅ PASSED' || '❌ FAILED' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f "mybatis-sql-analyzer-core/build/reports/jacoco/test/jacocoTestReport.csv" ]; then
+          if [ -f "mybatis-sql-tuner-core/build/reports/jacoco/test/jacocoTestReport.csv" ]; then
             echo "#### Core Module JaCoCo Coverage" >> $GITHUB_STEP_SUMMARY
             echo "| Class | Covered Lines | Missed Lines | Coverage |" >> $GITHUB_STEP_SUMMARY
             echo "| :--- | :---: | :---: | :---: |" >> $GITHUB_STEP_SUMMARY
-            tail -n +2 mybatis-sql-analyzer-core/build/reports/jacoco/test/jacocoTestReport.csv | awk -F',' '{
+            tail -n +2 mybatis-sql-tuner-core/build/reports/jacoco/test/jacocoTestReport.csv | awk -F',' '{
               total = $8 + $9;
               pct = total > 0 ? ($9 / total) * 100 : 100;
               printf("| `%s` | %d | %d | **%.1f%%** |\n", $3, $9, $8, pct);
@@ -62,6 +62,6 @@ jobs:
         with:
           name: test-reports
           path: |
-            mybatis-sql-analyzer-core/build/reports/
-            mybatis-sql-analyzer-intellij/build/reports/
+            mybatis-sql-tuner-core/build/reports/
+            mybatis-sql-tuner-intellij/build/reports/
           retention-days: 7

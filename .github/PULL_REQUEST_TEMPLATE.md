@@ -8,8 +8,8 @@
 ## 🧪 Verification
 <!-- Describe the tests and coverage verification you ran locally. -->
 - [ ] Ran `./gradlew check` and confirmed all unit tests pass.
-- [ ] Confirmed **100% line coverage** is met for the `mybatis-sql-analyzer-core` module.
-- [ ] (If applicable) Completed manual UI verification in the `./gradlew :mybatis-sql-analyzer-intellij:runIde` sandbox.
+- [ ] Confirmed **100% line coverage** is met for the `mybatis-sql-tuner-core` module.
+- [ ] (If applicable) Completed manual UI verification in the `./gradlew :mybatis-sql-tuner-intellij:runIde` sandbox.
 
 ## 📋 Checklist
 - [ ] Followed the [coding & commit conventions](docs/CONVENTIONS.md).

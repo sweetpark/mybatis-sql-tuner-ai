@@ -8,5 +8,5 @@ pluginManagement {
 
 rootProject.name = 'mybatis-sql-tuner-ai'
 
-include 'mybatis-sql-analyzer-core'
-include 'mybatis-sql-analyzer-intellij'
+include 'mybatis-sql-tuner-core'
+include 'mybatis-sql-tuner-intellij'

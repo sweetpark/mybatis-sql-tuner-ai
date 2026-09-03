@@ -60,9 +60,9 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 
 ```bash
 # Launch the sandbox IntelliJ IDEA instance
-./gradlew :mybatis-sql-analyzer-intellij:runIde
+./gradlew :mybatis-sql-tuner-intellij:runIde
 ```
-> In the sandbox IDE, open a MyBatis mapper XML file and try the feature right away via the right-click menu (`Analyze SQL with AI`) or the tool window on the right (`MyBatis SQL Analyzer`).
+> In the sandbox IDE, open a MyBatis mapper XML file and try the feature right away via the right-click menu (`Tune SQL with AI`) or the tool window on the right (`MyBatis SQL Tuner`).
 
 ---
 
@@ -83,9 +83,9 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 ### 3) Build the distributable plugin zip
 ```bash
 # Produce the distributable plugin zip
-./gradlew :mybatis-sql-analyzer-intellij:buildPlugin
+./gradlew :mybatis-sql-tuner-intellij:buildPlugin
 ```
-* **Output artifact**: `mybatis-sql-analyzer-intellij/build/distributions/mybatis-sql-analyzer-intellij-0.1.1.zip`
+* **Output artifact**: `mybatis-sql-tuner-intellij/build/distributions/mybatis-sql-tuner-intellij-0.1.1.zip`
 
 ---
 
@@ -93,14 +93,14 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 
 ### Option A: Install from the JetBrains Marketplace (once the official listing is live)
 1. Open IntelliJ IDEA, go to `Settings` (`Ctrl+Alt+S` or `Cmd+,`) → **Plugins**
-2. Search for `MyBatis SQL Analyzer` in the **Marketplace** tab
+2. Search for `MyBatis SQL Tuner AI` in the **Marketplace** tab
 3. Click **Install**, then restart the IDE
 
 ### Option B: Manual install from a zip file (local build)
 1. Open IntelliJ IDEA, go to `Settings` → **Plugins**
 2. Click the gear icon (⚙️) at the top → **Install Plugin from Disk...**
-3. Select the built `mybatis-sql-analyzer-intellij-0.1.1.zip` file
-4. Restart the IDE and confirm the **MyBatis SQL Analyzer** tool window on the right sidebar
+3. Select the built `mybatis-sql-tuner-intellij-0.1.1.zip` file
+4. Restart the IDE and confirm the **MyBatis SQL Tuner** tool window on the right sidebar
 
 ---
 
@@ -135,7 +135,7 @@ graph LR
 
 ### 📌 Phase 2: Migrate & sanitize the source code (✅ Done)
 - [x] Migrate `core` and `intellij` module code from the original repository
-- [x] Unify the package name (`io.github.sweetpark.sqlanalyzer`)
+- [x] Unify the package name (`io.github.sweetpark.sqltuner`)
 - [x] Sanitize internal IPs/config values and switch to generic environment configuration (Properties/Settings)
 - [x] Optimize Gradle build scripts (IntelliJ Platform Gradle Plugin 2.x setup)
 

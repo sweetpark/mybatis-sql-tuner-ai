@@ -39,6 +39,7 @@ out/
 ### Project-specific ###
 # DB 접속 정보 등 민감 설정 파일
 .sql-analyzer.properties
+.sql-tuner.properties
 .intellijPlatform/
 
 # Marketplace 플러그인 서명 키/인증서 (docs/MARKETPLACE_PUBLISHING.md 3단계) — 절대 커밋 금지

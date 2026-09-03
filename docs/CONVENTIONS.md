@@ -28,7 +28,7 @@ This document defines the code quality, testing standards, and collaboration rul
 * **Prefer Dynamic Proxy over ByteBuddy/CGLIB**:
   - Bytecode-manipulation-based mocking libraries can break on recent JDKs (Java 21~25+), so prefer the standard Java `Proxy.newProxyInstance(...)` or an in-memory mock implementation wherever possible.
 * **100% line coverage is required for the core module**:
-  - Every class and method newly added to `mybatis-sql-analyzer-core` must reach 100% branch/line coverage; the `./gradlew check` build fails if coverage falls short.
+  - Every class and method newly added to `mybatis-sql-tuner-core` must reach 100% branch/line coverage; the `./gradlew check` build fails if coverage falls short.
 
 ---
 

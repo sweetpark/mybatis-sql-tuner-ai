@@ -9,14 +9,14 @@ This document explains the system structure, inter-module interaction, and data 
 
 ```mermaid
 graph TD
-    subgraph IntelliJPlugin["mybatis-sql-analyzer-intellij (IDE Layer)"]
-        Action["AnalyzeSqlAction<br/>(editor right-click menu)"] --> ToolWin["SqlAnalyzerToolWindow / Panel<br/>(Swing UI & Settings)"]
-        ToolWin --> Service["SqlAnalyzerService<br/>(Orchestrator)"]
+    subgraph IntelliJPlugin["mybatis-sql-tuner-intellij (IDE Layer)"]
+        Action["TuneSqlAction<br/>(editor right-click menu)"] --> ToolWin["SqlTunerToolWindow / Panel<br/>(Swing UI & Settings)"]
+        ToolWin --> Service["SqlTunerService<br/>(Orchestrator)"]
         Service --> AiClient["AiChatClient<br/>(SSE Streaming Client)"]
         AiClient --> LLM["AI Model / LLM<br/>(Ollama / OpenAI API)"]
     end
 
-    subgraph CoreModule["mybatis-sql-analyzer-core (Engine Layer)"]
+    subgraph CoreModule["mybatis-sql-tuner-core (Engine Layer)"]
         Service --> Extractor["SqlExtractor<br/>(XML DOM & AST Stripper)"]
         Service --> Jdbc["JdbcAnalyzer<br/>(EXPLAIN & Schema Inspector)"]
         Service --> PromptGen["PromptGenerator<br/>(DBA Persona Composer)"]
@@ -31,7 +31,7 @@ graph TD
 
 ## 2. Module Responsibilities & Design Principles
 
-### 1) `mybatis-sql-analyzer-core` (standalone static-analysis & parser engine)
+### 1) `mybatis-sql-tuner-core` (standalone static-analysis & parser engine)
 A pure Java library (Java 17+) with no IDE dependency, so it can be reused from a CLI or a CI/CD pipeline.
 
 * **`SqlExtractor`**:
@@ -44,12 +44,12 @@ A pure Java library (Java 17+) with no IDE dependency, so it can be reused from 
 * **`PromptGenerator`**:
   - Combines the collected raw XML query, `fakeSql`, `EXPLAIN` execution plan, and table/index metadata into an optimization prompt written from the perspective of a **senior DBA persona with 10 years of experience**.
 
-### 2) `mybatis-sql-analyzer-intellij` (IDE plugin layer)
+### 2) `mybatis-sql-tuner-intellij` (IDE plugin layer)
 The UI and asynchronous streaming integration module that runs on the IntelliJ IDEA platform.
 
-* **`AnalyzeSqlAction`**:
+* **`TuneSqlAction`**:
   - Invoked from a right-click in the mapper XML editor; pre-validates the XML on a background thread (`ActionUpdateThread.BGT`).
-* **`SqlAnalyzerPanel` / `SqlAnalyzerToolWindow`**:
+* **`SqlTunerPanel` / `SqlTunerToolWindow`**:
   - Docked as a tool window on the right of the editor; provides mapper-directory browsing, file filtering, and `queryId` selection UI.
   - DB connection info and the AI endpoint settings are kept safely per IntelliJ project — non-secret values via `PropertiesComponent`, and the DB password / AI API key via the OS credential store (`PasswordSafe`).
 * **`AiChatClient`**:
@@ -63,8 +63,8 @@ The UI and asynchronous streaming integration module that runs on the IntelliJ I
 sequenceDiagram
     autonumber
     actor Dev as Developer
-    participant UI as SqlAnalyzerPanel
-    participant Svc as SqlAnalyzerService
+    participant UI as SqlTunerPanel
+    participant Svc as SqlTunerService
     participant Ext as SqlExtractor
     participant DB as Target DB
     participant AI as AiChatClient (LLM)

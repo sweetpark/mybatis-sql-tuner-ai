@@ -14,7 +14,7 @@
       폴백 설계다.
     -->
     <Match>
-        <Class name="io.github.sweetpark.sqlanalyzer.core.SqlExtractor"/>
+        <Class name="io.github.sweetpark.sqltuner.core.SqlExtractor"/>
         <Method name="buildFakeSql"/>
         <Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
@@ -34,7 +34,7 @@
       무해하다 (해당 호출 경로가 테스트에 존재하지 않음).
     -->
     <Match>
-        <Class name="io.github.sweetpark.sqlanalyzer.intellij.action.TestActionManager"/>
+        <Class name="io.github.sweetpark.sqltuner.intellij.action.TestActionManager"/>
         <Bug pattern="NP_NONNULL_RETURN_VIOLATION"/>
     </Match>
 
