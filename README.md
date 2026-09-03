@@ -15,6 +15,10 @@
 > executable SQL (`fakeSql`), collects the DB execution plan (`EXPLAIN`) and metadata, and streams a
 > **senior-DBA-persona AI tuning report in real time**.
 
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="MyBatis SQL Tuner AI demo" width="800" />
+</p>
+
 ---
 
 ## 📌 1. Key Features
