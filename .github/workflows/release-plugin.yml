@@ -32,6 +32,13 @@ jobs:
       - name: Verify All Tests & 100% Coverage
         run: ./gradlew check
 
+      - name: Verify Marketplace Secrets Are Configured
+        run: |
+          if [ -z "${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}" ]; then
+            echo "::error::JETBRAINS_MARKETPLACE_TOKEN secret is not set. See docs/MARKETPLACE_PUBLISHING.md to register it before pushing a release tag."
+            exit 1
+          fi
+
       - name: Publish Plugin to Marketplace
         env:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}

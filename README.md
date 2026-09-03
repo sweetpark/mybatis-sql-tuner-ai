@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" />
   <img src="https://img.shields.io/badge/Java-17%2B-orange.svg" alt="Java 17+" />
   <img src="https://img.shields.io/badge/IntelliJ%20Platform-2024.1%2B-blueviolet.svg" alt="IntelliJ Platform" />
-  <img src="https://img.shields.io/badge/Code%20Style-Google%20Java%20Format-brightgreen.svg" alt="Spotless" />
+  <img src="https://img.shields.io/badge/Code%20Style-Eclipse%20Formatter-brightgreen.svg" alt="Spotless" />
   <img src="https://img.shields.io/badge/Static%20Analysis-SpotBugs-yellow.svg" alt="SpotBugs" />
   <img src="https://img.shields.io/badge/Coverage-100%25%20(Core)-success.svg" alt="Coverage" />
   <img src="https://img.shields.io/badge/AI%20Review-CodeRabbit-purple.svg" alt="CodeRabbit" />
@@ -44,7 +44,7 @@
 
 | 도구 | 역할 | 검증 방식 |
 | :--- | :--- | :--- |
-| **Spotless** | Google Java Format 코드 스타일 통일 | `./gradlew spotlessCheck` |
+| **Spotless** | Eclipse Formatter 기반 코드 스타일 통일 | `./gradlew spotlessCheck` |
 | **SpotBugs** | Java 바이트코드 레벨 잠재적 버그/안티패턴 정적 분석 | `./gradlew spotbugsMain` |
 | **JaCoCo** | Core 파서 모듈 **100% 라인 커버리지** 강제화 | `./gradlew jacocoTestCoverageVerification` |
 | **CodeRabbit AI** | PR 등록 시 변경 diff 자동 AI 코드 리뷰 | GitHub PR Webhook 자동 연동 |
@@ -74,7 +74,7 @@
 
 ### 2) 코드 포맷 자동 정렬 (Spotless Apply)
 ```bash
-# Google Java Format 스타일로 자동 포맷팅
+# Eclipse Formatter 스타일로 자동 포맷팅
 ./gradlew spotlessApply
 ```
 
@@ -140,7 +140,7 @@ graph LR
 ### 📌 Phase 3: 테스트 및 플러그인 빌드 검증 (✅ 완료)
 - [x] Core 모듈 라인 커버리지 100% 달성 및 JaCoCo 강제 룰 적용 (`./gradlew check`)
 - [x] IntelliJ 플러그인 전수 단위 테스트 통과
-- [x] Spotless (Google Java Format) 및 SpotBugs 정적 분석 통합
+- [x] Spotless (Eclipse Formatter) 및 SpotBugs 정적 분석 통합
 - [x] 배포용 Zip 패키징 검증 (`./gradlew buildPlugin`)
 - [x] 플러그인 샌드박스 실행 환경 구성 (`./gradlew runIde`)
 

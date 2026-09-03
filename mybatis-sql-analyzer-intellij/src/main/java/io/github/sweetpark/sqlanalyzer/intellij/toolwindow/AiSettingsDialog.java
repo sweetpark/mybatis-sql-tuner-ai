@@ -29,7 +29,7 @@ public class AiSettingsDialog extends DialogWrapper {
 	private final Project project;
 	private JTextField baseUrlField;
 	private JTextField modelField;
-	private JTextField apiKeyField;
+	private JPasswordField apiKeyField;
 
 	public AiSettingsDialog(Project project) {
 		super(project);
@@ -79,7 +79,7 @@ public class AiSettingsDialog extends DialogWrapper {
 		gbc.weightx = 0;
 		panel.add(new JLabel("API Key:"), gbc);
 
-		apiKeyField = new JTextField(props.getValue(KEY_API_KEY, DEFAULT_API_KEY), 38);
+		apiKeyField = new JPasswordField(props.getValue(KEY_API_KEY, DEFAULT_API_KEY), 38);
 		apiKeyField.setToolTipText("Ollama 등 미인증 환경은 공백 가능. OpenAI 등은 API 키 입력.");
 		gbc.gridx = 1;
 		gbc.weightx = 1.0;
@@ -102,7 +102,7 @@ public class AiSettingsDialog extends DialogWrapper {
 		PropertiesComponent props = PropertiesComponent.getInstance(project);
 		props.setValue(KEY_BASE_URL, baseUrlField.getText().trim());
 		props.setValue(KEY_MODEL, modelField.getText().trim());
-		props.setValue(KEY_API_KEY, apiKeyField.getText().trim());
+		props.setValue(KEY_API_KEY, new String(apiKeyField.getPassword()).trim());
 		super.doOKAction();
 	}
 

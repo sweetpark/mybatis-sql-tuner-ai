@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -135,7 +136,8 @@ public class SqlExtractor {
 						if (rawSqlXml != null) {
 							try {
 								DocumentBuilder db = createSecureFactory().newDocumentBuilder();
-								Document parse = db.parse(new ByteArrayInputStream(rawSqlXml.getBytes()));
+								Document parse = db
+										.parse(new ByteArrayInputStream(rawSqlXml.getBytes(StandardCharsets.UTF_8)));
 
 								// <sql> 태그의 내용을 다시 buildFakeSql로 처리 (isForExplain 유지)
 								fakeSql.append(" ").append(buildFakeSql(parse.getDocumentElement(), isForExplain,

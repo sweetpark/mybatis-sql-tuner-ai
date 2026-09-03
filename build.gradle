@@ -7,6 +7,21 @@ subprojects {
     apply plugin: 'com.diffplug.spotless'
     apply plugin: 'com.github.spotbugs'
 
+    // 소스에 한글 주석/문자열 리터럴이 포함되어 있으므로, OS 기본 인코딩이 UTF-8이 아닌 환경
+    // (예: 한국어 Windows의 CP949/x-windows-949)에서 javac가 플랫폼 기본 인코딩으로 소스를 읽어
+    // 한글이 깨진 문자열로 컴파일되는 것을 방지하기 위해 인코딩을 명시적으로 UTF-8로 고정한다.
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(Test).configureEach {
+        systemProperty 'file.encoding', 'UTF-8'
+    }
+
+    tasks.withType(Javadoc).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
     spotless {
         java {
             eclipse()

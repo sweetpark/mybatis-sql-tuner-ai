@@ -111,6 +111,10 @@ public class SqlAnalyzerPanel extends JPanel {
 		Path mapperPath = Path.of(mapperFilePath);
 		Path parentDir = mapperPath.getParent();
 
+		if (parentDir == null) {
+			return;
+		}
+
 		mapperDirField.setText(parentDir.toString());
 		reloadMapperFiles();
 
