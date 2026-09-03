@@ -85,7 +85,7 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 # Produce the distributable plugin zip
 ./gradlew :mybatis-sql-analyzer-intellij:buildPlugin
 ```
-* **Output artifact**: `mybatis-sql-analyzer-intellij/build/distributions/mybatis-sql-analyzer-intellij-0.1.0.zip`
+* **Output artifact**: `mybatis-sql-analyzer-intellij/build/distributions/mybatis-sql-analyzer-intellij-0.1.1.zip`
 
 ---
 
@@ -99,7 +99,7 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 ### Option B: Manual install from a zip file (local build)
 1. Open IntelliJ IDEA, go to `Settings` → **Plugins**
 2. Click the gear icon (⚙️) at the top → **Install Plugin from Disk...**
-3. Select the built `mybatis-sql-analyzer-intellij-0.1.0.zip` file
+3. Select the built `mybatis-sql-analyzer-intellij-0.1.1.zip` file
 4. Restart the IDE and confirm the **MyBatis SQL Analyzer** tool window on the right sidebar
 
 ---

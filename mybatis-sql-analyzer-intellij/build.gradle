@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.github.sweetpark'
-version = '0.1.0'
+version = '0.1.1'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -52,6 +52,13 @@ intellijPlatform {
         and schema inspection on your database, and streams real-time AI tuning recommendations.
         '''
         changeNotes = '''
+        <h3>0.1.1</h3>
+        <ul>
+            <li>Fix: PostgreSQL and H2 JDBC drivers were not bundled in the distributed plugin, causing a ClassNotFoundException at runtime</li>
+            <li>Fix: force UTF-8 build encoding so Korean text no longer gets corrupted on non-UTF-8-locale platforms</li>
+            <li>Security: DB password and AI API key now stored via PasswordSafe (OS credential store) instead of plaintext</li>
+            <li>Mask the AI API key field in the settings dialog</li>
+        </ul>
         <h3>0.1.0</h3>
         <ul>
             <li>Initial public release</li>

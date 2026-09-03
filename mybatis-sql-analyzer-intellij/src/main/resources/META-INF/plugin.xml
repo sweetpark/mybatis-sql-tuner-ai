@@ -2,7 +2,7 @@
     <!-- 플러그인 고유 ID: 마켓플레이스 등록 시에도 이 ID를 사용 -->
     <id>io.github.sweetpark.mybatis-sql-analyzer-intellij</id>
     <name>MyBatis SQL Analyzer</name>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <vendor>sweetpark</vendor>
     <description>
         MyBatis 매퍼 XML에서 특정 queryId를 선택하여 실제 DB의 EXPLAIN과 스키마 정보를
