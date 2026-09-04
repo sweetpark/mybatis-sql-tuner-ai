@@ -79,7 +79,7 @@ as a build gate (`jacocoTestCoverageVerification`).
 
 ## 5. Pull Request Guide
 
-1. **Commit message format**: Follow [Conventional Commits](docs/CONVENTIONS.md) (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`).
+1. **Commit message format**: Follow [Conventional Commits](docs/CONVENTIONS.md) (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`). This isn't just style — `release-please` reads these types to automatically bump the version and generate `CHANGELOG.md`, so pick the type carefully (see [Convention References §3](docs/CONVENTIONS.md#3-git-commit-message-convention-conventional-commits)).
 2. **Verify tests**: Run `./gradlew check` before submitting a PR to confirm all tests and coverage checks pass.
 3. **PR description**: Clearly explain the reason for the change, what was modified, and how it was tested.
 
