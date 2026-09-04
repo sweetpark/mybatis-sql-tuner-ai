@@ -88,4 +88,3 @@ as a build gate (`jacocoTestCoverageVerification`).
 ## 6. Convention References
 * 🏗 **[Architecture Guide (docs/ARCHITECTURE.md)](docs/ARCHITECTURE.md)**: Module structure, AST parsing, and the AI streaming pipeline
 * 📐 **[Coding & Commit Conventions (docs/CONVENTIONS.md)](docs/CONVENTIONS.md)**: Java code style, unit-testing principles, commit message rules
-* 🌐 **[Marketplace Publishing Guide (docs/MARKETPLACE_PUBLISHING.md)](docs/MARKETPLACE_PUBLISHING.md)**: Official Marketplace publishing process

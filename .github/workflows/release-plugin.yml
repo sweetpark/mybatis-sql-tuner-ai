@@ -35,7 +35,7 @@ jobs:
       - name: Verify Marketplace Secrets Are Configured
         run: |
           if [ -z "${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}" ]; then
-            echo "::error::JETBRAINS_MARKETPLACE_TOKEN secret is not set. See docs/MARKETPLACE_PUBLISHING.md to register it before pushing a release tag."
+            echo "::error::JETBRAINS_MARKETPLACE_TOKEN secret is not set. Register it in JetBrains Marketplace > My tokens before pushing a release tag."
             exit 1
           fi
 
