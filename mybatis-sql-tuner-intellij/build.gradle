@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.github.sweetpark'
-version = '0.1.1' // x-release-please-version
+version = '0.1.2' // x-release-please-version
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -52,6 +52,10 @@ intellijPlatform {
         and schema inspection on your database, and streams real-time AI tuning recommendations.
         '''
         changeNotes = '''
+        <h3>0.1.2</h3>
+        <ul>
+            <li>Fix: table/index metadata lookup was hardcoded to uppercase table names, which only matched H2's identifier storage. PostgreSQL (lowercase) and MySQL/MariaDB (as-created case) now resolve correctly instead of returning empty DDL/index info</li>
+        </ul>
         <h3>0.1.1</h3>
         <ul>
             <li>Fix: PostgreSQL and H2 JDBC drivers were not bundled in the distributed plugin, causing a ClassNotFoundException at runtime</li>
