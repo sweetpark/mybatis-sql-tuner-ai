@@ -95,9 +95,9 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 
 ## 📦 6. Installation
 
-### Option A: Install from the JetBrains Marketplace (once the official listing is live)
+### Option A: Install from the JetBrains Marketplace
 1. Open IntelliJ IDEA, go to `Settings` (`Ctrl+Alt+S` or `Cmd+,`) → **Plugins**
-2. Search for `MyBatis SQL Tuner AI` in the **Marketplace** tab
+2. Search for `MyBatis SQL Tuner AI` in the **Marketplace** tab (or visit the [Marketplace listing](https://plugins.jetbrains.com/plugin/34051-mybatis-sql-tuner-ai))
 3. Click **Install**, then restart the IDE
 
 ### Option B: Manual install from a zip file (local build)
@@ -114,46 +114,5 @@ You can run a local IntelliJ IDEA sandbox with the plugin installed to try the f
 * 📐 **[Coding & Commit Conventions (docs/CONVENTIONS.md)](docs/CONVENTIONS.md)**: Java code style, unit-testing principles, Conventional Commits rules
 * 🤝 **[Contributing Guide (CONTRIBUTING.md)](CONTRIBUTING.md)**: Dev environment setup, branch strategy, PR submission guide
 * 📘 **[Open Source Migration Playbook (docs/OPEN_SOURCE_MIGRATION_PLAYBOOK.md)](docs/OPEN_SOURCE_MIGRATION_PLAYBOOK.md)**: Shared migration & quality-gate setup procedure for sweetpark org projects
-* 🌐 **[Marketplace Publishing Guide (docs/MARKETPLACE_PUBLISHING.md)](docs/MARKETPLACE_PUBLISHING.md)**: JetBrains Marketplace registration, token issuance, plugin signing, and automated publishing
 * 📜 **[Code of Conduct (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md)**: Contributor Covenant 2.1
 * ⚖️ **[License (LICENSE)](LICENSE)**: Apache License 2.0
-
----
-
-## 🗺 8. Roadmap
-
-```mermaid
-graph LR
-    P1["Phase 1<br/>Repo init & design"] --> P2["Phase 2<br/>Source migration & refactor"]
-    P2 --> P3["Phase 3<br/>Verification & plugin build"]
-    P3 --> P4["Phase 4<br/>Open-source Marketplace release"]
-    style P1 fill:#238636,stroke:#fff,stroke-width:2px,color:#fff
-    style P2 fill:#238636,stroke:#fff,stroke-width:2px,color:#fff
-    style P3 fill:#238636,stroke:#fff,stroke-width:2px,color:#fff
-    style P4 fill:#1f6feb,stroke:#fff,stroke-width:2px,color:#fff
-```
-
-### 📌 Phase 1: Create private repo & establish the blueprint (✅ Done)
-- [x] Create an open-source-oriented repository (`mybatis-sql-tuner-ai`) (Private)
-- [x] Write a README covering the migration guide, refactoring principles, and architecture vision
-
-### 📌 Phase 2: Migrate & sanitize the source code (✅ Done)
-- [x] Migrate `core` and `intellij` module code from the original repository
-- [x] Unify the package name (`io.github.sweetpark.sqltuner`)
-- [x] Sanitize internal IPs/config values and switch to generic environment configuration (Properties/Settings)
-- [x] Optimize Gradle build scripts (IntelliJ Platform Gradle Plugin 2.x setup)
-
-### 📌 Phase 3: Verify tests & plugin build (✅ Done)
-- [x] Reach 100% line coverage on the core module and enforce it via JaCoCo (`./gradlew check`)
-- [x] Pass the full IntelliJ plugin unit-test suite
-- [x] Integrate Spotless (Eclipse Formatter) and SpotBugs static analysis
-- [x] Verify the distributable zip packaging (`./gradlew buildPlugin`)
-- [x] Set up the plugin sandbox run environment (`./gradlew runIde`)
-
-### 📌 Phase 4: Prepare for JetBrains Marketplace release (In progress)
-- [x] Configure the Gradle blocks for JetBrains Marketplace publishing (`publishing`, `signing`, `pluginConfiguration`)
-- [x] Add an open-source license (`LICENSE` - Apache 2.0)
-- [x] Standardize open-source docs (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/`)
-- [x] Wire up CodeRabbit AI auto-review and the GitHub Actions CI workflow
-- [ ] Issue a JetBrains Marketplace developer account token and register the signing key
-- [ ] **Officially release on the JetBrains Marketplace and switch the repository to Public**

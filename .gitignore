@@ -42,6 +42,6 @@ out/
 .sql-tuner.properties
 .intellijPlatform/
 
-# Marketplace 플러그인 서명 키/인증서 (docs/MARKETPLACE_PUBLISHING.md 3단계) — 절대 커밋 금지
+# Marketplace 플러그인 서명 키/인증서 — 절대 커밋 금지
 *.pem
 

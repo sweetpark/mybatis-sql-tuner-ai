@@ -264,20 +264,14 @@ class JdbcAnalyzerTest {
 				return "8.3.0";
 			if ("getConnection".equals(name))
 				return mockConn;
-			if ("getTables".equals(name))
-				return createProxy(ResultSet.class, (tProxy, tMethod, tArgs) -> {
-					if ("next".equals(tMethod.getName()))
-						return true;
-					if ("getString".equals(tMethod.getName()) && "TABLE_NAME".equals(tArgs[0]))
-						return "PAYMENTS";
-					if ("close".equals(tMethod.getName()))
-						return null;
-					return null;
-				});
 			if ("getColumns".equals(name))
 				return colsRs;
 			if ("getIndexInfo".equals(name))
 				return idxRs;
+			if ("storesUpperCaseIdentifiers".equals(name))
+				return false;
+			if ("storesLowerCaseIdentifiers".equals(name))
+				return false;
 			return null;
 		});
 
@@ -291,28 +285,13 @@ class JdbcAnalyzerTest {
 	}
 
 	@Test
-	@DisplayName("getMetaDataInfo - 테이블이 소문자로 저장된 DB(MySQL/PostgreSQL 등)에서도 컬럼/인덱스를 찾아야 함")
-	void getMetaDataInfo_lowerCaseStoredTableName() throws Exception {
-		ResultSet tablesRsUpper = createProxy(ResultSet.class, (proxy, method, args) -> {
-			if ("next".equals(method.getName()))
-				return false; // 대문자 후보: 테이블 없음 (실제로는 소문자로 저장됨)
-			if ("close".equals(method.getName()))
-				return null;
-			return null;
-		});
-
-		ResultSet tablesRsLower = createProxy(ResultSet.class, (proxy, method, args) -> {
-			if ("next".equals(method.getName()))
-				return true; // 소문자 후보: 테이블 발견
-			if ("getString".equals(method.getName()) && "TABLE_NAME".equals(args[0]))
-				return "payments";
-			if ("close".equals(method.getName()))
-				return null;
-			return null;
-		});
-
+	@DisplayName("PostgreSQL 모드(소문자 식별자 저장) - 테이블명이 소문자로 정규화되어 조회되어야 함")
+	void getMetaDataInfo_postgresLowerCaseIdentifiers() throws Exception {
 		AtomicInteger colsNext = new AtomicInteger(0);
-		ResultSet columnsRs = createProxy(ResultSet.class, (proxy, method, args) -> {
+		AtomicInteger idxNext = new AtomicInteger(0);
+		java.util.List<String> requestedTableNames = new java.util.ArrayList<>();
+
+		ResultSet colsRs = createProxy(ResultSet.class, (proxy, method, args) -> {
 			String name = method.getName();
 			if ("next".equals(name))
 				return colsNext.getAndIncrement() == 0;
@@ -329,18 +308,28 @@ class JdbcAnalyzerTest {
 			return null;
 		});
 
-		ResultSet emptyRs = createProxy(ResultSet.class, (proxy, method, args) -> {
-			if ("next".equals(method.getName()))
+		ResultSet idxRs = createProxy(ResultSet.class, (proxy, method, args) -> {
+			String name = method.getName();
+			if ("next".equals(name))
+				return idxNext.getAndIncrement() == 0;
+			if ("getString".equals(name)) {
+				if ("INDEX_NAME".equals(args[0]))
+					return "payments_pkey";
+				if ("COLUMN_NAME".equals(args[0]))
+					return "payment_id";
+			}
+			if ("getBoolean".equals(name))
 				return false;
-			if ("close".equals(method.getName()))
+			if ("close".equals(name))
 				return null;
 			return null;
 		});
 
 		Connection mockConn = createProxy(Connection.class, (proxy, method, args) -> {
-			if ("getCatalog".equals(method.getName()))
+			String name = method.getName();
+			if ("getCatalog".equals(name))
 				return "mydb";
-			if ("close".equals(method.getName()))
+			if ("close".equals(name))
 				return null;
 			return null;
 		});
@@ -357,79 +346,31 @@ class JdbcAnalyzerTest {
 				return "42.7.2";
 			if ("getConnection".equals(name))
 				return mockConn;
-			if ("getTables".equals(name)) {
-				String pattern = (String) args[2];
-				if ("Payments".equals(pattern))
-					return tablesRsUpper; // 원본 표기(첫 후보)로는 못 찾음
-				if ("PAYMENTS".equals(pattern))
-					return tablesRsUpper; // 대문자 후보로도 못 찾음
-				return tablesRsLower; // 소문자 후보("payments")에서 발견
-			}
+			if ("storesUpperCaseIdentifiers".equals(name))
+				return false;
+			if ("storesLowerCaseIdentifiers".equals(name))
+				return true;
 			if ("getColumns".equals(name)) {
-				String pattern = (String) args[2];
-				return "payments".equals(pattern) ? columnsRs : emptyRs;
+				requestedTableNames.add((String) args[2]);
+				return colsRs;
 			}
-			if ("getIndexInfo".equals(name))
-				return emptyRs;
+			if ("getIndexInfo".equals(name)) {
+				requestedTableNames.add((String) args[2]);
+				return idxRs;
+			}
 			return null;
 		});
 
-		StringBuilder result = JdbcAnalyzer.getMetaDataInfo(Set.of("Payments"), metaData);
+		// PostgreSQL은 unquoted 테이블명을 소문자로 저장하므로, SQL에서 추출된 대문자/원본 케이스
+		// 테이블명이 카탈로그 조회 전에 소문자로 정규화되어야 한다.
+		StringBuilder result = JdbcAnalyzer.getMetaDataInfo(Set.of("PAYMENTS"), metaData);
 
-		assertTrue(result.toString().contains("payment_id"), "소문자로 저장된 테이블도 컬럼 정보를 찾아야 합니다 (실제 MySQL/PostgreSQL 동작).");
-	}
-
-	@Test
-	@DisplayName("getMetaDataInfo - getTables에서 테이블을 전혀 찾지 못하면 대문자 표기로 폴백해야 함")
-	void getMetaDataInfo_tableNotFoundFallsBackToUpperCase() throws Exception {
-		ResultSet emptyTablesRs = createProxy(ResultSet.class, (proxy, method, args) -> {
-			if ("next".equals(method.getName()))
-				return false;
-			if ("close".equals(method.getName()))
-				return null;
-			return null;
-		});
-
-		ResultSet emptyRs = createProxy(ResultSet.class, (proxy, method, args) -> {
-			if ("next".equals(method.getName()))
-				return false;
-			if ("close".equals(method.getName()))
-				return null;
-			return null;
-		});
-
-		Connection mockConn = createProxy(Connection.class, (proxy, method, args) -> {
-			if ("getCatalog".equals(method.getName()))
-				return "mydb";
-			if ("close".equals(method.getName()))
-				return null;
-			return null;
-		});
-
-		DatabaseMetaData metaData = createProxy(DatabaseMetaData.class, (proxy, method, args) -> {
-			String name = method.getName();
-			if ("getDatabaseProductName".equals(name))
-				return "H2";
-			if ("getDatabaseProductVersion".equals(name))
-				return "2.2.224";
-			if ("getDriverName".equals(name))
-				return "H2 JDBC Driver";
-			if ("getDriverVersion".equals(name))
-				return "2.2.224";
-			if ("getConnection".equals(name))
-				return mockConn;
-			if ("getTables".equals(name))
-				return emptyTablesRs;
-			if ("getColumns".equals(name))
-				return emptyRs;
-			if ("getIndexInfo".equals(name))
-				return emptyRs;
-			return null;
-		});
-
-		StringBuilder result = JdbcAnalyzer.getMetaDataInfo(Set.of("ghost_table"), metaData);
-
-		assertTrue(result.toString().contains("GHOST_TABLE"), "getTables 조회에 실패하면 기존 동작(대문자 변환)으로 폴백해야 합니다.");
+		assertNotNull(result);
+		assertTrue(requestedTableNames.stream().allMatch("payments"::equals),
+				"PostgreSQL에서는 getColumns/getIndexInfo에 소문자 테이블명이 전달되어야 합니다: " + requestedTableNames);
+		assertTrue(result.toString().contains("[TABLE INFO] : payments"));
+		assertTrue(result.toString().contains("payment_id"));
+		assertTrue(result.toString().contains("payments_pkey"));
 	}
 
 	@SuppressWarnings("unchecked")

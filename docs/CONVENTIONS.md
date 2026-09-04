@@ -53,6 +53,37 @@ Commit messages must follow this format:
 | `chore` | Build script, dependency, or package config changes | `chore: add JaCoCo 100% coverage verification rule` |
 | `perf` | Performance optimization | `perf: cache recursive mapper-file directory walk` |
 
+### Why this matters: commits drive the release automation
+
+This repository uses [release-please](https://github.com/googleapis/release-please) (`.github/workflows/release-please.yml`)
+to read commit messages on `main` and automatically open a release PR that bumps the version and
+updates `CHANGELOG.md`. The commit `type` is not just documentation — it directly determines the
+version bump:
+
+| Commit pattern | Version bump | Shows up in `CHANGELOG.md` |
+|---|---|---|
+| `fix:` / `perf:` | patch (`0.1.x`) | Yes |
+| `feat:` | minor (`0.x.0`) | Yes |
+| `<type>!:` or a `BREAKING CHANGE:` footer | major (`x.0.0`) | Yes |
+| `docs:`, `refactor:`, `test:`, `chore:`, `style:`, `ci:`, `build:` | none | No (silently omitted) |
+
+Breaking-change example (note the `!` right after the scope, and the footer explaining the break):
+```
+feat(core)!: drop support for MyBatis 2.x mapper XML
+
+BREAKING CHANGE: MyBatis 2.x XML mappers are no longer parsed; migrate to MyBatis 3.x syntax.
+```
+
+Practical implications:
+* If a change should be visible in the changelog and trigger a release, it **must** use `fix`,
+  `feat`, or a breaking-change marker — wrapping a real bug fix in `chore:` means release-please
+  won't cut a release for it.
+* Conversely, don't mark a non-functional change (docs, formatting, test-only) as `fix`/`feat` —
+  it will bump the version for no user-facing reason.
+* `release-please-config.json` lists `mybatis-sql-tuner-intellij/build.gradle` under `extra-files`,
+  so whenever a release PR bumps the version, that file's version string is updated automatically
+  in the same PR — no manual edit needed.
+
 ---
 
 ## 4. Branch Strategy & PR Rules

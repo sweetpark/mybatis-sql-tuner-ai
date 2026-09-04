@@ -65,7 +65,7 @@ public class JdbcAnalyzer {
 		String catalog = metaData.getConnection().getCatalog();
 
 		for (String table : tables) {
-			String targetTable = resolveActualTableName(metaData, catalog, table);
+			String targetTable = normalizeIdentifierCase(table, metaData);
 
 			result.append("============================\n");
 			result.append("[TABLE INFO] : ").append(targetTable).append("\n");
@@ -109,27 +109,22 @@ public class JdbcAnalyzer {
 	}
 
 	/**
-	 * DB에 실제로 저장된 테이블명의 대소문자를 확인한다.
+	 * DB가 unquoted 식별자를 저장하는 대소문자 규칙에 맞춰 테이블명을 정규화한다.
 	 *
 	 * <p>
-	 * H2는 unquoted 식별자를 대문자로 접어 저장하지만, MySQL/MariaDB(Linux 기본값
-	 * {@code lower_case_table_names=0})와 PostgreSQL은 원래 입력한 대소문자(보통 소문자)를 그대로 저장한다.
-	 * {@code getColumns}/{@code getIndexInfo}는 대소문자가 정확히 일치해야 결과를 반환하므로, 무조건 대문자로
-	 * 변환하면 H2 이외의 DB에서는 빈 결과가 반환된다. 원본 표기 → 대문자 → 소문자 순으로 {@code getTables}에 존재 여부를
-	 * 물어 실제 저장된 이름을 찾는다.
-	 *
-	 * @return 실제 저장된 테이블명. 어느 후보로도 찾지 못하면 대문자 표기를 그대로 반환한다(기존 동작 유지).
+	 * {@code getColumns}/{@code getIndexInfo}의 테이블명 패턴은 실제로 카탈로그에 저장된 식별자 대소문자와 정확히
+	 * 일치해야 매칭된다. H2/Oracle처럼 대문자로 저장하는 DB, PostgreSQL처럼 소문자로 저장하는 DB,
+	 * MySQL/MariaDB처럼 원래 대소문자를 그대로 저장하는 DB가 서로 달라 무조건 {@code toUpperCase()}로 고정하면
+	 * H2 이외의 DB에서는 컬럼·인덱스 조회가 빈 결과로 돌아온다.
 	 */
-	private static String resolveActualTableName(DatabaseMetaData metaData, String catalog, String table)
-			throws SQLException {
-		for (String candidate : new String[]{table, table.toUpperCase(), table.toLowerCase()}) {
-			try (ResultSet rs = metaData.getTables(catalog, null, candidate, new String[]{"TABLE"})) {
-				if (rs.next()) {
-					return rs.getString("TABLE_NAME");
-				}
-			}
+	private static String normalizeIdentifierCase(String identifier, DatabaseMetaData metaData) throws SQLException {
+		if (metaData.storesUpperCaseIdentifiers()) {
+			return identifier.toUpperCase();
 		}
-		return table.toUpperCase();
+		if (metaData.storesLowerCaseIdentifiers()) {
+			return identifier.toLowerCase();
+		}
+		return identifier;
 	}
 
 	/**

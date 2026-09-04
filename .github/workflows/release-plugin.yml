@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g. v0.1.2) — use this to re-run a release that never triggered automatically'
+        required: true
 
 permissions:
   contents: write
@@ -16,9 +21,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -35,7 +42,7 @@ jobs:
       - name: Verify Marketplace Secrets Are Configured
         run: |
           if [ -z "${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}" ]; then
-            echo "::error::JETBRAINS_MARKETPLACE_TOKEN secret is not set. See docs/MARKETPLACE_PUBLISHING.md to register it before pushing a release tag."
+            echo "::error::JETBRAINS_MARKETPLACE_TOKEN secret is not set. Register it in JetBrains Marketplace > My tokens before pushing a release tag."
             exit 1
           fi
 
