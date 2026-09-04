@@ -32,13 +32,43 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+
+    testImplementation platform('org.testcontainers:testcontainers-bom:2.0.5')
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-mysql'
+    testImplementation 'org.testcontainers:testcontainers-mariadb'
+    testImplementation 'org.testcontainers:testcontainers-postgresql'
+
+    // 실제 DB 컨테이너에 접속하기 위한 드라이버 (compileOnly 는 런타임에 없음 — 통합 테스트용으로 testImplementation 추가)
+    testImplementation 'com.mysql:mysql-connector-j:8.3.0'
+    testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+    testImplementation 'org.postgresql:postgresql:42.7.2'
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
     finalizedBy jacocoTestReport
     jacoco {
         includes = ['io.github.sweetpark.*']
+    }
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs Docker/Testcontainers-based integration tests (tag: integration)'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    shouldRunAfter test
+    jacoco {
+        // 통합 테스트는 실제 컨테이너/드라이버를 다루므로 커버리지 계측 대상이 아니며,
+        // JaCoCo 0.8.12는 최신 JDK의 클래스 파일 버전을 계측하지 못해 실패할 수 있다.
+        enabled = false
     }
 }
 

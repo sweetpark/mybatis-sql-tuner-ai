@@ -65,7 +65,7 @@ public class JdbcAnalyzer {
 		String catalog = metaData.getConnection().getCatalog();
 
 		for (String table : tables) {
-			String targetTable = table.toUpperCase();
+			String targetTable = resolveActualTableName(metaData, catalog, table);
 
 			result.append("============================\n");
 			result.append("[TABLE INFO] : ").append(targetTable).append("\n");
@@ -106,6 +106,30 @@ public class JdbcAnalyzer {
 			result.append("============================\n\n");
 		}
 		return result;
+	}
+
+	/**
+	 * DB에 실제로 저장된 테이블명의 대소문자를 확인한다.
+	 *
+	 * <p>
+	 * H2는 unquoted 식별자를 대문자로 접어 저장하지만, MySQL/MariaDB(Linux 기본값
+	 * {@code lower_case_table_names=0})와 PostgreSQL은 원래 입력한 대소문자(보통 소문자)를 그대로 저장한다.
+	 * {@code getColumns}/{@code getIndexInfo}는 대소문자가 정확히 일치해야 결과를 반환하므로, 무조건 대문자로
+	 * 변환하면 H2 이외의 DB에서는 빈 결과가 반환된다. 원본 표기 → 대문자 → 소문자 순으로 {@code getTables}에 존재 여부를
+	 * 물어 실제 저장된 이름을 찾는다.
+	 *
+	 * @return 실제 저장된 테이블명. 어느 후보로도 찾지 못하면 대문자 표기를 그대로 반환한다(기존 동작 유지).
+	 */
+	private static String resolveActualTableName(DatabaseMetaData metaData, String catalog, String table)
+			throws SQLException {
+		for (String candidate : new String[]{table, table.toUpperCase(), table.toLowerCase()}) {
+			try (ResultSet rs = metaData.getTables(catalog, null, candidate, new String[]{"TABLE"})) {
+				if (rs.next()) {
+					return rs.getString("TABLE_NAME");
+				}
+			}
+		}
+		return table.toUpperCase();
 	}
 
 	/**
