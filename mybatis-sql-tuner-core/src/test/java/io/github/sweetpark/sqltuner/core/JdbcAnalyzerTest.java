@@ -268,6 +268,10 @@ class JdbcAnalyzerTest {
 				return colsRs;
 			if ("getIndexInfo".equals(name))
 				return idxRs;
+			if ("storesUpperCaseIdentifiers".equals(name))
+				return false;
+			if ("storesLowerCaseIdentifiers".equals(name))
+				return false;
 			return null;
 		});
 
@@ -278,6 +282,95 @@ class JdbcAnalyzerTest {
 		assertTrue(result.toString().contains("STRICT_TRANS_TABLES"));
 		assertTrue(result.toString().contains("payment_id"));
 		assertTrue(result.toString().contains("PRIMARY"));
+	}
+
+	@Test
+	@DisplayName("PostgreSQL 모드(소문자 식별자 저장) - 테이블명이 소문자로 정규화되어 조회되어야 함")
+	void getMetaDataInfo_postgresLowerCaseIdentifiers() throws Exception {
+		AtomicInteger colsNext = new AtomicInteger(0);
+		AtomicInteger idxNext = new AtomicInteger(0);
+		java.util.List<String> requestedTableNames = new java.util.ArrayList<>();
+
+		ResultSet colsRs = createProxy(ResultSet.class, (proxy, method, args) -> {
+			String name = method.getName();
+			if ("next".equals(name))
+				return colsNext.getAndIncrement() == 0;
+			if ("getString".equals(name)) {
+				if ("COLUMN_NAME".equals(args[0]))
+					return "payment_id";
+				if ("TYPE_NAME".equals(args[0]))
+					return "VARCHAR";
+				if ("COLUMN_SIZE".equals(args[0]))
+					return "50";
+			}
+			if ("close".equals(name))
+				return null;
+			return null;
+		});
+
+		ResultSet idxRs = createProxy(ResultSet.class, (proxy, method, args) -> {
+			String name = method.getName();
+			if ("next".equals(name))
+				return idxNext.getAndIncrement() == 0;
+			if ("getString".equals(name)) {
+				if ("INDEX_NAME".equals(args[0]))
+					return "payments_pkey";
+				if ("COLUMN_NAME".equals(args[0]))
+					return "payment_id";
+			}
+			if ("getBoolean".equals(name))
+				return false;
+			if ("close".equals(name))
+				return null;
+			return null;
+		});
+
+		Connection mockConn = createProxy(Connection.class, (proxy, method, args) -> {
+			String name = method.getName();
+			if ("getCatalog".equals(name))
+				return "mydb";
+			if ("close".equals(name))
+				return null;
+			return null;
+		});
+
+		DatabaseMetaData metaData = createProxy(DatabaseMetaData.class, (proxy, method, args) -> {
+			String name = method.getName();
+			if ("getDatabaseProductName".equals(name))
+				return "PostgreSQL";
+			if ("getDatabaseProductVersion".equals(name))
+				return "16.0";
+			if ("getDriverName".equals(name))
+				return "PostgreSQL JDBC Driver";
+			if ("getDriverVersion".equals(name))
+				return "42.7.2";
+			if ("getConnection".equals(name))
+				return mockConn;
+			if ("storesUpperCaseIdentifiers".equals(name))
+				return false;
+			if ("storesLowerCaseIdentifiers".equals(name))
+				return true;
+			if ("getColumns".equals(name)) {
+				requestedTableNames.add((String) args[2]);
+				return colsRs;
+			}
+			if ("getIndexInfo".equals(name)) {
+				requestedTableNames.add((String) args[2]);
+				return idxRs;
+			}
+			return null;
+		});
+
+		// PostgreSQL은 unquoted 테이블명을 소문자로 저장하므로, SQL에서 추출된 대문자/원본 케이스
+		// 테이블명이 카탈로그 조회 전에 소문자로 정규화되어야 한다.
+		StringBuilder result = JdbcAnalyzer.getMetaDataInfo(Set.of("PAYMENTS"), metaData);
+
+		assertNotNull(result);
+		assertTrue(requestedTableNames.stream().allMatch("payments"::equals),
+				"PostgreSQL에서는 getColumns/getIndexInfo에 소문자 테이블명이 전달되어야 합니다: " + requestedTableNames);
+		assertTrue(result.toString().contains("[TABLE INFO] : payments"));
+		assertTrue(result.toString().contains("payment_id"));
+		assertTrue(result.toString().contains("payments_pkey"));
 	}
 
 	@SuppressWarnings("unchecked")
