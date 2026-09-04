@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # secrets.GITHUB_TOKEN 으로 만든 태그/릴리즈는 GitHub의 재귀 방지 정책 때문에
+          # 다른 워크플로우(release-plugin.yml)를 트리거하지 못한다. 실제 사용자 권한의
+          # PAT를 사용해야 v* 태그 push가 정상적으로 마켓플레이스 배포 워크플로우를 깨운다.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
