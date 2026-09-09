@@ -52,6 +52,10 @@ intellijPlatform {
         and schema inspection on your database, and streams real-time AI tuning recommendations.
         '''
         changeNotes = '''
+        <h3>0.1.5</h3>
+        <ul>
+            <li>Fix: removed the plugin's until-build ceiling (was capped at 251.*) so it keeps working on upcoming IDE releases (2025.3/253 and beyond) instead of disappearing from the Marketplace listing</li>
+        </ul>
         <h3>0.1.2</h3>
         <ul>
             <li>Fix: table/index metadata lookup was hardcoded to uppercase table names, which only matched H2's identifier storage. PostgreSQL (lowercase) and MySQL/MariaDB (as-created case) now resolve correctly instead of returning empty DDL/index info</li>
@@ -73,7 +77,6 @@ intellijPlatform {
         '''
         ideaVersion {
             sinceBuild = '241'
-            untilBuild = '251.*'
         }
         vendor {
             name = 'sweetpark'
