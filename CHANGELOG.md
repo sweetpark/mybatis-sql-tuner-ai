@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/sweetpark/mybatis-sql-tuner-ai/compare/v0.1.4...v0.1.5) (2026-09-09)
+
+
+### Bug Fixes
+
+* **intellij:** remove until-build ceiling so plugin stays available on future IDEs ([c6b31ae](https://github.com/sweetpark/mybatis-sql-tuner-ai/commit/c6b31aedafae1e726c8b3a00218c8a810d6906d9))
+
 ## [0.1.4](https://github.com/sweetpark/mybatis-sql-tuner-ai/compare/v0.1.3...v0.1.4) (2026-09-04)
 
 
