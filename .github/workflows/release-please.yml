@@ -13,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         with:
           # secrets.GITHUB_TOKEN 으로 만든 태그/릴리즈는 GitHub의 재귀 방지 정책 때문에
           # 다른 워크플로우(release-plugin.yml)를 트리거하지 못한다. 실제 사용자 권한의
